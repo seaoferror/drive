@@ -2,6 +2,7 @@ package service
 
 import (
 	"backend/auth-file/internal/dto"
+	"context"
 	"errors"
 	"log/slog"
 
@@ -9,10 +10,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *Service) LoginWithEmail(email, password string) (*dto.LoginWithEmailResponse, string /*refreshToken*/, error) {
+func (s *Service) LoginWithEmail(ctx context.Context, email, password string) (*dto.LoginWithEmailResponse, string, error) {
 	var resp dto.LoginWithEmailResponse
 
-	id, dbPassword, role, err := s.repository.FindLoginInfoByEmail(email)
+	id, dbPassword, role, err := s.repository.FindLoginInfoByEmail(ctx, email)
 	if err != nil {
 		return nil, "", errors.New("this account does not exist")
 	}
@@ -26,11 +27,13 @@ func (s *Service) LoginWithEmail(email, password string) (*dto.LoginWithEmailRes
 	}
 
 	jti := uuid.New()
-	at, rt, err := s.createLoginTokens(id.String(), jti.String(), role)
+	rawId := id.String()
+	rawJTI := jti.String()
+	at, rt, err := s.createLoginTokens(rawId, rawJTI, role)
 	if err != nil {
 		return nil, "", ErrInternalServer
 	}
-	err = s.repository.SaveRefreshTokenJTIById(id, jti)
+	err = s.repository.SaveRefreshTokenJTIById(ctx, rawId, rawJTI)
 	if err != nil {
 		return nil, "", ErrInternalServer
 	}

@@ -2,6 +2,7 @@ package service
 
 import (
 	"backend/auth-file/internal/constant"
+	"context"
 	"crypto/rsa"
 	"log/slog"
 	"time"
@@ -10,7 +11,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func (s *Service) GenerateAccessToken(refreshToken string) (map[string]string, error) {
+func (s *Service) GenerateAccessToken(ctx context.Context, refreshToken string) (map[string]string, error) {
 	rt, err := jwt.Parse(refreshToken, func(token *jwt.Token) (any, error) {
 		if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
 			slog.Info("unexpected signing method")
@@ -44,23 +45,14 @@ func (s *Service) GenerateAccessToken(refreshToken string) (map[string]string, e
 		)
 		return nil, ErrGenerateToken
 	}
-	id, err := uuid.Parse(rawId)
+	_, err = uuid.Parse(rawId)
 	if err != nil {
-		slog.Info("fail to parse gocql uuid from id",
+		slog.Info("fail to parse uuid from id",
 			"err", err)
 		return nil, ErrGenerateToken
 	}
-	jtis, err := s.repository.FindRefreshTokenJTIsById(id)
-	if err != nil {
-		return nil, ErrGenerateToken
-	}
-	var jtiValidity bool
-	for _, jti := range jtis {
-		if rt.Claims.(jwt.MapClaims)["jti"].(string) == jti.String() {
-			jtiValidity = true
-		}
-	}
-	if !jtiValidity {
+	valid, err := s.repository.IsRefreshTokenJTIValid(ctx, rawId, rt.Claims.(jwt.MapClaims)["jti"].(string))
+	if !valid {
 		slog.Info("refresh token jti is not same with DB")
 		return nil, ErrGenerateToken
 	}
@@ -78,7 +70,7 @@ func (s *Service) GenerateAccessToken(refreshToken string) (map[string]string, e
 	return resp, nil
 }
 
-func (s *Service) RemoveJTI(refreshToken string) error {
+func (s *Service) RemoveJTI(ctx context.Context, refreshToken string) error {
 	rt, err := jwt.Parse(refreshToken, func(token *jwt.Token) (any, error) {
 		if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
 			slog.Info("unexpected signing method")
@@ -112,19 +104,20 @@ func (s *Service) RemoveJTI(refreshToken string) error {
 		)
 		return ErrFailToSignOut
 	}
-	id, err := uuid.Parse(rawId)
+	_, err = uuid.Parse(rawId)
 	if err != nil {
-		slog.Info("fail to parse gocql uuid from id",
+		slog.Info("fail to parse uuid from id",
 			"err", err)
 		return ErrFailToSignOut
 	}
-	jti, err := uuid.Parse(rt.Claims.(jwt.MapClaims)["jti"].(string))
+	rawJTI := rt.Claims.(jwt.MapClaims)["jti"].(string)
+	_, err = uuid.Parse(rawJTI)
 	if err != nil {
-		slog.Info("fail to parse gocql uuid from id",
+		slog.Info("fail to parse uuid from id",
 			"err", err)
 		return ErrFailToSignOut
 	}
-	err = s.repository.RemoveRefreshTokenJTIById(id, jti)
+	err = s.repository.RemoveRefreshTokenJTIById(ctx, rawId, rawJTI)
 	if err != nil {
 		return ErrFailToSignOut
 	}

@@ -21,7 +21,7 @@ func (c *Controller) loginWithEmail(w http.ResponseWriter, r *http.Request) {
 		handleError(w, err)
 		return
 	}
-	result, rt, err := c.service.LoginWithEmail(req.Email, req.Password)
+	result, rt, err := c.service.LoginWithEmail(r.Context(), req.Email, req.Password)
 	if err != nil {
 		handleError(w, err)
 		return

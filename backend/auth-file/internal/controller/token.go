@@ -18,7 +18,7 @@ func (c *Controller) refreshToken(w http.ResponseWriter, r *http.Request) {
 		handleError(w, err)
 		return
 	}
-	result, err := c.service.GenerateAccessToken(rt.Value)
+	result, err := c.service.GenerateAccessToken(r.Context(), rt.Value)
 	if err != nil {
 		handleError(w, err)
 		return
@@ -37,7 +37,7 @@ func (c *Controller) logout(w http.ResponseWriter, r *http.Request) {
 		handleError(w, err)
 		return
 	}
-	err = c.service.RemoveJTI(rt.Value)
+	err = c.service.RemoveJTI(r.Context(), rt.Value)
 	http.SetCookie(w, &http.Cookie{Name: "refresh_token",
 		Value:    "",
 		Expires:  time.Now(),
