@@ -1,41 +1,197 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.*
-.yarn/*
-!.yarn/patches
-!.yarn/plugins
-!.yarn/releases
-!.yarn/versions
-
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
+# ------------------------
+# Global OS / Editor stuff
+# ------------------------
 .DS_Store
-*.pem
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.log
+*.bak
 
-# debug
+# JetBrains (IntelliJ, GoLand, etc.)
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# -------------
+# Go
+# -------------
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Go build dirs
+bin/
+dist/
+
+# Go modules vendor dir
+vendor/
+
+# ------------------------
+# Java / Spring (Gateway)
+# ------------------------
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Gradle
+.gradle/
+build/
+out/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Spring Boot
+*.jar
+*.war
+*.ear
+*.iws
+
+# Logs
+logs/
+*.log.*
+
+# IntelliJ, Eclipse, STS
+.classpath
+.project
+.settings/
+.apt_generated/
+.factorypath
+.springBeans
+
+# ------------------------
+# Node / React Native (Expo)
+# ------------------------
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+# or, if you prefer Yarn, ignore the other one:
+# yarn.lock
 
-# env files (can opt-in for committing if needed)
-.env*
+# Expo
+.expo/
+.expo-shared/
+.expo-web-debugger/
+web-build/
 
-# vercel
-.vercel
+# Metro / bundler
+.haul-debug.log*
+bundle/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# Env
+.env
+.env.*.local
+env.properties
+
+# ------------------------
+# React Native - Android (bare/ejected)
+# ------------------------
+android/.gradle/
+android/local.properties
+android/.idea/
+android/.settings/
+android/build/
+android/app/build/
+android/app/release/
+android/.cxx/
+*.apk
+*.ap_
+
+# Keystores
+*.jks
+*.keystore
+
+# ------------------------
+# React Native - iOS (bare/ejected)
+# ------------------------
+ios/build/
+ios/Pods/
+ios/Podfile.lock
+ios/*.xcworkspace
+ios/*/xcuserdata/
+ios/*/DerivedData/
+ios/*/Build/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# Xcode misc
+*.xccheckout
+*.moved-aside
+*.xcuserstate
+
+# ------------------------
+# Misc
+# ------------------------
+coverage/
+coverage.out
+*.orig
+*.rej
+
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+*firebase-adminsdk*.json
+*serviceAccount*.json
+
+# apn
+AuthKey*.p8
+
+# private key
+*.pem
+
+
+expo-env.d.ts
+
+#terraform
+
+# Local .terraform directories (contains downloaded providers/plugins)
+**/.terraform/*
+
+# .tfstate files (CRITICAL: These contain sensitive info like your private PEM key!)
+*.tfstate
+*.tfstate.*
+
+# Crash log files
+crash.log
+crash.*.log
+
+# Exclude sensitive variable structures
+*.tfvars
+*.tfvars.json
+
+# Ignore override files, as they are usually local
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Ignore CLI configuration files
+.terraformrc
+terraform.rc
+
+
+*.crt
+
+*secure*.zip
+
+raw-secret*.yaml
+
+*-key.yaml
+
+*.cert
+*.key
