@@ -8,8 +8,8 @@ import (
 )
 
 func tokenRouter(n *Controller) {
-	n.Router(POST, "/auth/refresh-token", n.refreshToken)
-	n.Router(POST, "/auth/account/logout", n.logout)
+	n.Router(POST, "/auth-file/refresh-token", n.refreshToken)
+	n.Router(POST, "/auth-file/account/logout", n.logout)
 }
 
 func (c *Controller) refreshToken(w http.ResponseWriter, r *http.Request) {

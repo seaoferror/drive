@@ -1,66 +1,39 @@
 package repository
 
 import (
+	"context"
 	"log"
 	"log/slog"
 	"os"
-	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repository struct {
-	session *gocql.Session
+	pool *pgxpool.Pool
 }
 
 func NewRepository() *Repository {
-	cluster, err := gocqlastra.NewClusterFromBundle("cert/astradb/astradb-secure-connect.zip",
-		"token", os.Getenv("ASTRADB_TOKEN"), 10*time.Second)
-	cluster.Keyspace = os.Getenv("PROFILE")
-	cluster.Timeout = 1 * time.Minute
-	cluster.Consistency = gocql.Quorum
-	cluster.Compressor = &lz4.LZ4Compressor{}
-	//cluster.PageSize = 1000
-	//cluster.NextPagePrefetch = 0.25
-	//cluster.Tracer =
-
-	session, err := gocql.NewSession(*cluster)
-
-	queries := []string{
-		`CREATE TABLE IF NOT EXISTS member_by_email (
-			email text PRIMARY KEY, id uuid, email_verified boolean, phone_number_verified boolean,
-			phone_number text, password text, role text
-		);`,
-		`CREATE TABLE IF NOT EXISTS member_by_id (
-			id uuid PRIMARY KEY, email text, email_verified boolean, phone_number_verified boolean,
-			phone_number text, role text, refresh_token_jtis set<uuid>
-		);`,
-		`CREATE TABLE IF NOT EXISTS member_by_phone_number (
-			phone_number text PRIMARY KEY, id uuid, email text, phone_number_verified boolean, role text
-		);`,
-		`CREATE TABLE IF NOT EXISTS member_by_verification_id (
-			verification_id uuid PRIMARY KEY, email text, phone_number text, otp text
-		);`,
-		`CREATE TABLE IF NOT EXISTS member_by_session_id (
-			session_id uuid PRIMARY KEY, email text
-		);`,
-		`CREATE TABLE IF NOT EXISTS nonce (
-    		nonce text PRIMARY KEY
-    	);`,
+	pool, err := pgxpool.New(context.Background(), os.Getenv("POSTGRES_URL"))
+	if err != nil {
+		slog.Error("failed to connect postgres", "err", err)
+		panic(err)
 	}
-
+	queries := []string{
+		`CREATE TABLE IF NOT EXISTS member (
+			id UUID PRIMARY KEY, email TEXT, password TEXT, role TEXT, refresh_token_jtis UUID[]
+		);`,
+	}
 	for _, q := range queries {
-		err = session.Query(q).Exec()
+		_, err = pool.Exec(context.Background(), q)
 		if err != nil {
 			slog.Error("failed to execute migration query", "err", err, "query", q)
 			panic(err)
 		}
 	}
-
-	if err != nil {
-		log.Panicf("fail to create session from cassandra cluster: %v", err)
-	}
-	log.Print("success to connect cassandra")
+	log.Print("success to connect postgres")
 	r := &Repository{
-		session: session,
+		pool: pool,
 	}
 
 	return r

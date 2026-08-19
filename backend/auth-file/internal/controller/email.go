@@ -10,7 +10,7 @@ import (
 )
 
 func emailRouter(n *Controller) {
-	n.Router(POST, "/auth/email/login", n.loginWithEmail)
+	n.Router(POST, "/auth-file/email/login", n.loginWithEmail)
 }
 
 func (c *Controller) loginWithEmail(w http.ResponseWriter, r *http.Request) {

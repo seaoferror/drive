@@ -2,13 +2,12 @@ package service
 
 import (
 	"backend/auth-file/internal/constant"
-	"context"
 	"crypto/rsa"
-	"errors"
 	"log/slog"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 func (s *Service) GenerateAccessToken(refreshToken string) (map[string]string, error) {
@@ -45,7 +44,7 @@ func (s *Service) GenerateAccessToken(refreshToken string) (map[string]string, e
 		)
 		return nil, ErrGenerateToken
 	}
-	id, err := gocql.ParseUUID(rawId)
+	id, err := uuid.Parse(rawId)
 	if err != nil {
 		slog.Info("fail to parse gocql uuid from id",
 			"err", err)
@@ -113,13 +112,13 @@ func (s *Service) RemoveJTI(refreshToken string) error {
 		)
 		return ErrFailToSignOut
 	}
-	id, err := gocql.ParseUUID(rawId)
+	id, err := uuid.Parse(rawId)
 	if err != nil {
 		slog.Info("fail to parse gocql uuid from id",
 			"err", err)
 		return ErrFailToSignOut
 	}
-	jti, err := gocql.ParseUUID(rt.Claims.(jwt.MapClaims)["jti"].(string))
+	jti, err := uuid.Parse(rt.Claims.(jwt.MapClaims)["jti"].(string))
 	if err != nil {
 		slog.Info("fail to parse gocql uuid from id",
 			"err", err)
@@ -185,73 +184,4 @@ func createTokenWithJTI(id, jti, role string, secretKey *rsa.PrivateKey, ttl int
 		return "", err
 	}
 	return token, nil
-}
-
-func (s *Service) DeleteAccount(ctx context.Context, refreshToken string) error {
-	rt, err := jwt.Parse(refreshToken, func(token *jwt.Token) (any, error) {
-		if token.Method.Alg() != jwt.SigningMethodRS256.Alg() {
-			slog.Info("unexpected signing method")
-			return nil, ErrGenerateToken
-		}
-		return s.publicKeyRT, nil
-	})
-	if err != nil {
-		slog.Info("fail to parse token",
-			"err", err)
-		return err
-	}
-	if !rt.Valid {
-		slog.Info("invalid token",
-			"rt", rt)
-		return errors.New("something went wrong")
-	}
-	exp, err := rt.Claims.GetExpirationTime()
-	if err != nil {
-		slog.Info("fail to get expiration time")
-		return err
-	}
-	if exp.Unix() < time.Now().Unix() {
-		slog.Info("stale token")
-		return errors.New("something went wrong")
-	}
-	rawId, err := rt.Claims.GetSubject()
-	if err != nil {
-		slog.Info("fail to get subject from claim",
-			"err", err,
-		)
-		return err
-	}
-	id, err := gocql.ParseUUID(rawId)
-	if err != nil {
-		slog.Info("fail to parse gocql uuid from id",
-			"err", err)
-		return err
-	}
-	jtis, err := s.repository.FindRefreshTokenJTIsById(id)
-	if err != nil {
-		return err
-	}
-	var jtiValidity bool
-	for _, jti := range jtis {
-		if rt.Claims.(jwt.MapClaims)["jti"].(string) == jti.String() {
-			jtiValidity = true
-		}
-	}
-	if !jtiValidity {
-		slog.Info("refresh token jti is not same with DB")
-		return errors.New("something went wrong")
-	}
-	email, phoneNumber, err := s.repository.FindEmailAndPhoneNumberById(ctx, id)
-	if err != nil {
-		return err
-	}
-	slog.Info("find email and phone number for account deletion",
-		"id", id,
-		"email", email,
-		"phone number", phoneNumber)
-	err = s.repository.DeleteAccount(ctx, id, email, phoneNumber)
-	if err != nil {
-		return err
-	}
-	return nil
 }
