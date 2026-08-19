@@ -1,13 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { useStyletron } from "baseui";
-import { Checkbox, LABEL_PLACEMENT } from "baseui/checkbox";
-import { Input } from "baseui/input";
-import { Button } from "baseui/button";
-import { HeadingSmall, LabelMedium, ParagraphSmall } from "baseui/typography";
-import { Notification, KIND as NotificationKind } from "baseui/notification";
-import type { StyleObject } from "styletron-react";
+import React, { useState, useEffect } from "react";
+import * as stylex from "@stylexjs/stylex";
 
 const api = {
   fetchPolicy: async () => {
@@ -51,9 +45,6 @@ const MAX_CUSTOM_EXTENSIONS: number = 200;
 const MAX_LENGTH: number = 20;
 
 export default function ExtensionManager() {
-  const [css, theme] = useStyletron();
-  const styles = useMemo(() => getStyles(theme), [theme]);
-
   const [fixedState, setFixedState] = useState<Record<string, boolean>>({});
   const [customExtensions, setCustomExtensions] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
@@ -130,92 +121,89 @@ export default function ExtensionManager() {
   if (isLoading) return null;
 
   return (
-    <div className={css(styles.container)}>
-      <HeadingSmall marginTop="0" marginBottom={theme.sizing.scale800}>
-        Extension Blocking Policy
-      </HeadingSmall>
+    <div {...stylex.props(styles.container)}>
+      <h2 {...stylex.props(styles.heading)}>Extension Blocking Policy</h2>
 
       {errorMsg && (
-        <Notification
-          kind={NotificationKind.negative}
-          closeable
-          onClose={() => setErrorMsg("")}
-        >
-          {errorMsg}
-        </Notification>
+        <div {...stylex.props(styles.notification)}>
+          <span>{errorMsg}</span>
+          <button
+            type="button"
+            onClick={() => setErrorMsg("")}
+            {...stylex.props(styles.notificationCloseBtn)}
+          >
+            ✕
+          </button>
+        </div>
       )}
 
-      <div className={css(styles.fixedSection)}>
-        <LabelMedium marginBottom={theme.sizing.scale300}>
-          Fixed Extensions
-        </LabelMedium>
-        <ParagraphSmall color={theme.colors.contentSecondary} marginTop="0">
+      <div {...stylex.props(styles.fixedSection)}>
+        <label {...stylex.props(styles.sectionLabel)}>Fixed Extensions</label>
+        <p {...stylex.props(styles.sectionParagraph)}>
           Select standard extensions to block. Changes are saved automatically.
-        </ParagraphSmall>
+        </p>
 
-        <div className={css(styles.checkboxGrid)}>
+        <div {...stylex.props(styles.checkboxGrid)}>
           {FIXED_EXTENSIONS.map((ext) => (
-            <Checkbox
-              key={ext}
-              checked={fixedState[ext] || false}
-              onChange={() => handleFixedToggle(ext)}
-              labelPlacement={LABEL_PLACEMENT.right}
-            >
-              {ext}
-            </Checkbox>
+            <label key={ext} {...stylex.props(styles.checkboxWrapper)}>
+              <input
+                type="checkbox"
+                checked={fixedState[ext] || false}
+                onChange={() => handleFixedToggle(ext)}
+                {...stylex.props(styles.checkboxInput)}
+              />
+              <span {...stylex.props(styles.checkboxText)}>{ext}</span>
+            </label>
           ))}
         </div>
       </div>
 
-      <div className={css(styles.divider)} />
+      <div {...stylex.props(styles.divider)} />
 
       <div>
-        <LabelMedium marginBottom={theme.sizing.scale300}>
-          Custom Extensions
-        </LabelMedium>
-        <ParagraphSmall color={theme.colors.contentSecondary} marginTop="0">
+        <label {...stylex.props(styles.sectionLabel)}>Custom Extensions</label>
+        <p {...stylex.props(styles.sectionParagraph)}>
           Add specific extensions to block (Max {MAX_LENGTH} chars). Limit:{" "}
           {customExtensions.length}/{MAX_CUSTOM_EXTENSIONS}
-        </ParagraphSmall>
+        </p>
 
-        <form onSubmit={handleAddCustom} className={css(styles.form)}>
-          <div className={css(styles.formInput)}>
-            <Input
+        <form onSubmit={handleAddCustom} {...stylex.props(styles.form)}>
+          <div {...stylex.props(styles.formInputWrapper)}>
+            <input
+              type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               maxLength={MAX_LENGTH}
               placeholder="e.g. sh, py, config"
-              clearOnEscape
+              {...stylex.props(styles.textInput)}
             />
           </div>
-          <Button
+          <button
             type="submit"
             disabled={
               !inputValue.trim() ||
               customExtensions.length >= MAX_CUSTOM_EXTENSIONS
             }
+            {...stylex.props(styles.submitBtn)}
           >
             Add
-          </Button>
+          </button>
         </form>
 
-        <div className={css(styles.customTagsContainer)}>
+        <div {...stylex.props(styles.customTagsContainer)}>
           {customExtensions.length === 0 ? (
-            <ParagraphSmall
-              color={theme.colors.contentSecondary}
-              className={css(styles.emptyText)}
-            >
+            <p {...stylex.props(styles.emptyText)}>
               No custom extensions added yet.
-            </ParagraphSmall>
+            </p>
           ) : (
             customExtensions.map((ext) => (
-              <div key={ext} className={css(styles.customTag)}>
+              <div key={ext} {...stylex.props(styles.customTag)}>
                 <span>{ext}</span>
                 <button
                   type="button"
                   onClick={() => handleDeleteCustom(ext)}
-                  className={css(styles.customTagCloseBtn)}
                   aria-label={`Remove ${ext}`}
+                  {...stylex.props(styles.customTagCloseBtn)}
                 >
                   ✕
                 </button>
@@ -228,82 +216,189 @@ export default function ExtensionManager() {
   );
 }
 
-const getStyles = (theme: any): Record<string, StyleObject> => ({
+const styles = stylex.create({
   container: {
     maxWidth: "700px",
-    margin: "0 auto",
-    padding: theme.sizing.scale800,
-    backgroundColor: theme.colors.backgroundPrimary,
-    boxShadow: theme.lighting.shadow400,
-    borderRadius: theme.borders.radius400,
+    marginInline: "auto",
+    padding: "24px",
+    backgroundColor: "#ffffff",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
+    borderRadius: "8px",
+    fontFamily: "system-ui, -apple-system, sans-serif",
+  },
+  heading: {
+    fontSize: "20px",
+    fontWeight: 600,
+    marginTop: 0,
+    marginBottom: "24px",
+    color: "#0f172a",
+  },
+  sectionLabel: {
+    display: "block",
+    fontSize: "16px",
+    fontWeight: 600,
+    marginBottom: "4px",
+    color: "#334155",
+  },
+  sectionParagraph: {
+    fontSize: "14px",
+    marginTop: 0,
+    marginBottom: "16px",
+    color: "#64748b",
+  },
+  notification: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "12px 16px",
+    backgroundColor: "#fef2f2",
+    color: "#991b1b",
+    borderRadius: "6px",
+    marginBottom: "24px",
+    fontSize: "14px",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "#fecaca",
+  },
+  notificationCloseBtn: {
+    background: "none",
+    borderWidth: 0,
+    cursor: "pointer",
+    color: "#991b1b",
+    fontSize: "16px",
+    opacity: {
+      default: 0.7,
+      ":hover": 1,
+    },
   },
   fixedSection: {
-    marginBottom: theme.sizing.scale900,
+    marginBottom: "32px",
   },
   checkboxGrid: {
     display: "flex",
     flexWrap: "wrap",
-    gap: theme.sizing.scale600,
+    gap: "16px",
+  },
+  checkboxWrapper: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    cursor: "pointer",
+  },
+  checkboxInput: {
+    width: "16px",
+    height: "16px",
+    cursor: "pointer",
+  },
+  checkboxText: {
+    fontSize: "14px",
+    fontWeight: 500,
+    color: "#334155",
   },
   divider: {
-    borderBottom: `1px solid ${theme.colors.borderOpaque}`,
-    marginBottom: theme.sizing.scale800,
+    borderBottomWidth: "1px",
+    borderBottomStyle: "solid",
+    borderBottomColor: "#e2e8f0",
+    marginBottom: "24px",
   },
   form: {
     display: "flex",
-    gap: theme.sizing.scale400,
-    marginBottom: theme.sizing.scale600,
+    gap: "8px",
+    marginBottom: "16px",
   },
-  formInput: {
-    flex: 1,
+  formInputWrapper: {
+    flexGrow: 1,
+  },
+  textInput: {
+    width: "100%",
+    paddingTop: "8px",
+    paddingBottom: "8px",
+    paddingRight: "12px",
+    paddingLeft: "12px",
+    fontSize: "14px",
+    borderRadius: "6px",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "#cbd5e1",
+    outline: "none",
+    boxSizing: "border-box",
+  },
+  submitBtn: {
+    paddingTop: "8px",
+    paddingBottom: "8px",
+    paddingRight: "16px",
+    paddingLeft: "16px",
+    fontSize: "14px",
+    fontWeight: 500,
+    color: "#ffffff",
+    borderWidth: 0,
+    borderRadius: "6px",
+    cursor: {
+      default: "pointer",
+      ":disabled": "not-allowed",
+    },
+    transitionProperty: "background-color",
+    transitionDuration: "0.2s",
+    backgroundColor: {
+      default: "#2563eb",
+      ":hover": "#1d4ed8",
+      ":disabled": "#94a3b8",
+    },
   },
   customTagsContainer: {
     minHeight: "150px",
-    padding: theme.sizing.scale600,
-    backgroundColor: theme.colors.backgroundSecondary,
-    borderRadius: theme.borders.radius300,
-    border: `1px solid ${theme.colors.borderOpaque}`,
+    padding: "16px",
+    backgroundColor: "#f8f9fa",
+    borderRadius: "4px",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    borderColor: "#e2e8f0",
     display: "flex",
     flexWrap: "wrap",
     alignItems: "flex-start",
     alignContent: "flex-start",
-    gap: theme.sizing.scale300,
+    gap: "8px",
   },
   emptyText: {
     width: "100%",
     textAlign: "center",
-    marginTop: theme.sizing.scale1000,
+    marginTop: "40px",
+    color: "#545454",
+    fontSize: "14px",
   },
-  // New Custom Tag Styles
   customTag: {
     display: "inline-flex",
     alignItems: "center",
-    backgroundColor: theme.colors.backgroundTertiary,
-    color: theme.colors.contentPrimary,
-    paddingTop: theme.sizing.scale100,
-    paddingBottom: theme.sizing.scale100,
-    paddingLeft: theme.sizing.scale400,
-    paddingRight: theme.sizing.scale300,
-    borderRadius: theme.borders.radius400,
+    backgroundColor: "#e2e8f0",
+    color: "#0f172a",
+    paddingTop: "4px",
+    paddingBottom: "4px",
+    paddingRight: "8px",
+    paddingLeft: "12px",
+    borderRadius: "9999px",
     fontSize: "14px",
-    fontWeight: "500",
+    fontWeight: 500,
   },
   customTagCloseBtn: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     background: "none",
-    border: "none",
+    borderWidth: 0,
     cursor: "pointer",
-    marginLeft: theme.sizing.scale200,
-    padding: theme.sizing.scale100,
-    color: theme.colors.contentSecondary,
+    marginLeft: "6px",
+    padding: "4px",
+    color: {
+      default: "#64748b",
+      ":hover": "#ef4444",
+    },
     fontSize: "12px",
     borderRadius: "50%",
-    transition: "background-color 0.2s, color 0.2s",
-    ":hover": {
-      backgroundColor: theme.colors.backgroundNegative,
-      color: theme.colors.contentStateDisabled,
+    transitionProperty: "background-color, color",
+    transitionDuration: "0.2s",
+    backgroundColor: {
+      default: "transparent",
+      ":hover": "#fee2e2",
     },
   },
 });
