@@ -41,6 +41,7 @@ public class FileService {
 
   @Transactional
   public void uploadMultipartFile(UUID memberId, MultipartFile file) {
+    //TODO: scan file with clamav first
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
     //TODO: caching the blocked mimetypes and custom extensions in redis/valkey
     List<BlockedExtensionNameProjection> extensions = blockedExtensionRepository.findByGroupIdAndDeletedAtIsNull(groupId, BlockedExtensionNameProjection.class);

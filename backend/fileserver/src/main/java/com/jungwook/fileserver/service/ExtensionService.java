@@ -30,7 +30,7 @@ public class ExtensionService {
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
     List<BlockedExtensionIdNameProjection> extensions = blockedExtensionRepository.findByGroupIdAndDeletedAtIsNull(groupId, BlockedExtensionIdNameProjection.class);
     List<GetBlockedExtensionsResponse> responses = new ArrayList<>();
-    for(var extension : extensions) {
+    for (var extension : extensions) {
       var response = GetBlockedExtensionsResponse.builder()
           .id(extension.getId())
           .name(extension.getName())
@@ -46,16 +46,18 @@ public class ExtensionService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "확장자는 영문자와 숫자만 입력 가능합니다.");
     }
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
+    String lowerCasedExtensionName = extensionName.toLowerCase();
+    if (blockedExtensionRepository
+        .existsByNameAndDeletedAtIsNullAndGroupId(lowerCasedExtensionName, groupId)) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 차단된 확장자입니다.");
+    }
+
     BlockedExtension extension = BlockedExtension.builder()
-        .name(extensionName.toLowerCase())
+        .name(lowerCasedExtensionName)
         .createdBy(Member.builder().id(memberId).build())
         .group(Group.builder().id(groupId).build())
         .build();
-    try {
-      blockedExtensionRepository.saveAndFlush(extension);
-    } catch (DataIntegrityViolationException e) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 업로드가 제한된 확장자입니다.");
-    }
+    blockedExtensionRepository.save(extension);
   }
 
   @Transactional
@@ -64,15 +66,15 @@ public class ExtensionService {
         () -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "이 확장자는 존재하지 않습니다")
     );
     UUID memberGroupId = memberRepository.findGroupIdByMemberId(memberId);
-    if(!extensionGroupId.equals(memberGroupId)) {
+    if (!extensionGroupId.equals(memberGroupId)) {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST,
           "이 확장자는 삭제할 권한이 없습니다"
       );
     }
     blockedExtensionRepository.softDeleteById(
-            extensionId,
-            Instant.now(),
-            Member.builder().id(memberId).build());
+        extensionId,
+        Instant.now(),
+        Member.builder().id(memberId).build());
   }
 }

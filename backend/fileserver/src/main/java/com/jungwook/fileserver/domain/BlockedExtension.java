@@ -19,7 +19,7 @@ public class BlockedExtension {
   @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
   private UUID id;
 
-  @Column(length = 20, nullable = false, unique = true)
+  @Column(length = 20, nullable = false)
   private String name;
 
   private Instant deletedAt;

@@ -17,6 +17,8 @@ import java.util.UUID;
 public interface BlockedExtensionRepository extends JpaRepository<BlockedExtension, UUID> {
   <T> List<T> findByGroupIdAndDeletedAtIsNull(UUID groupId, Class<T> type);
 
+  boolean existsByNameAndDeletedAtIsNullAndGroupId(String name, UUID groupId);
+
   @Query("SELECT e.group.id FROM BlockedExtension e WHERE e.id = :extensionId")
   Optional<UUID> findGroupIdByExtensionId(@Param("extensionId") UUID extensionId);
 
