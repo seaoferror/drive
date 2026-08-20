@@ -21,4 +21,6 @@ public class Group {
 
   @Column(columnDefinition = "TEXT", nullable = false)
   private String name;
+
+  private int numberOfBlockedCustomExtensions;
 }

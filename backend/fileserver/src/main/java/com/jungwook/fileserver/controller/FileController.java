@@ -20,7 +20,7 @@ public class FileController {
 
   private final FileService fileService;
 
-  @PostMapping("/upload")
+  @PostMapping("/fileserver/upload")
   public ResponseEntity<String> uploadFile(
       @NotNull @RequestHeader("X-User-Id") UUID memberId,
       @RequestParam("file") MultipartFile file
