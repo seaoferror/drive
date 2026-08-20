@@ -24,18 +24,6 @@ func NewRepository() *Repository {
 		slog.Error("failed to connect postgres", "err", err)
 		panic(err)
 	}
-	queries := []string{
-		`CREATE TABLE IF NOT EXISTS member (
-			id UUID PRIMARY KEY, email TEXT, password TEXT, role TEXT
-		);`,
-	}
-	for _, q := range queries {
-		_, err = pool.Exec(context.Background(), q)
-		if err != nil {
-			slog.Error("failed to execute migration query", "err", err, "query", q)
-			panic(err)
-		}
-	}
 
 	clientOption := valkey.ClientOption{
 		InitAddress: []string{os.Getenv("VALKEY_ADDRESS")},

@@ -10,4 +10,5 @@ type Member struct {
 	Password string    `db:"password"`
 	Name     string    `db:"name"`
 	Role     string    `db:"role"`
+	GroupId  string    `db:"group_id"`
 }

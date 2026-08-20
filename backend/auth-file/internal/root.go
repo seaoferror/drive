@@ -11,7 +11,6 @@ import (
 )
 
 func NewServer() {
-
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: true,
 	}))
