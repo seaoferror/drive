@@ -3,35 +3,6 @@
 import React, { useState, useEffect } from "react";
 import * as stylex from "@stylexjs/stylex";
 
-const api = {
-  fetchPolicy: async () => {
-    return {
-      fixed: {
-        bat: false,
-        cmd: false,
-        com: false,
-        cpl: false,
-        exe: false,
-        scr: false,
-        js: false,
-      },
-      custom: ["sh", "php"],
-    };
-  },
-  toggleFixedExtension: async (extension: string, isChecked: boolean) => {
-    console.log(`[DB SAVE] Fixed Extension '${extension}' -> ${isChecked}`);
-    return Promise.resolve(true);
-  },
-  addCustomExtension: async (extension: string) => {
-    console.log(`[DB SAVE] Custom Extension added: '${extension}'`);
-    return Promise.resolve(true);
-  },
-  deleteCustomExtension: async (extension: string) => {
-    console.log(`[DB DELETE] Custom Extension removed: '${extension}'`);
-    return Promise.resolve(true);
-  },
-};
-
 const FIXED_EXTENSIONS: string[] = [
   "bat",
   "cmd",
@@ -49,28 +20,12 @@ export default function ExtensionManager() {
   const [customExtensions, setCustomExtensions] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState<string>("");
   const [errorMsg, setErrorMsg] = useState<string>("");
-  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  useEffect(() => {
-    api.fetchPolicy().then((data) => {
-      setFixedState(data.fixed);
-      setCustomExtensions(data.custom);
-      setIsLoading(false);
-    });
-  }, []);
 
   const handleFixedToggle = async (ext: string) => {
     const newStatus = !fixedState[ext];
-
     setFixedState((prev) => ({ ...prev, [ext]: newStatus }));
     setErrorMsg("");
-
-    try {
-      await api.toggleFixedExtension(ext, newStatus);
-    } catch (error) {
-      setFixedState((prev) => ({ ...prev, [ext]: !newStatus }));
-      setErrorMsg(`Failed to save ${ext} setting to database.`);
-    }
   };
 
   const handleAddCustom = async (e: React.FormEvent) => {
@@ -99,7 +54,6 @@ export default function ExtensionManager() {
     }
 
     try {
-      await api.addCustomExtension(ext);
       setCustomExtensions((prev) => [...prev, ext]);
       setInputValue("");
       setErrorMsg("");
@@ -118,7 +72,6 @@ export default function ExtensionManager() {
     }
   };
 
-  if (isLoading) return null;
 
   return (
     <div {...stylex.props(styles.container)}>
