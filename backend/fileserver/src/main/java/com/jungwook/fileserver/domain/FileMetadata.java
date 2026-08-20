@@ -14,23 +14,18 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BlockedExtension {
+public class FileMetadata {
   @Id
   @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
   private UUID id;
 
-  @Column(columnDefinition = "TEXT", nullable = false)
+  @Column(nullable = false)
   private String name;
 
-  private Instant deletedAt;
+  @Column(nullable = false)
+  private String createdBy;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "created_by_member_id",
-      foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
-      nullable = false
-  )
-  private Member createdBy;
+  private Instant deletedAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(

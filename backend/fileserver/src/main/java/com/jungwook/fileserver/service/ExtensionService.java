@@ -7,7 +7,6 @@ import com.jungwook.fileserver.dto.GetBlockedExtensionsResponse;
 import com.jungwook.fileserver.repository.BlockedExtensionRepository;
 import com.jungwook.fileserver.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -45,7 +43,6 @@ public class ExtensionService {
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
     BlockedExtension extension = BlockedExtension.builder()
         .name(extensionName)
-        .createdAt(Instant.now())
         .createdBy(Member.builder().id(memberId).build())
         .group(Group.builder().id(groupId).build())
         .build();
