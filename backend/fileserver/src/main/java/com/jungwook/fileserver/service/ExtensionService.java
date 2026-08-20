@@ -4,10 +4,11 @@ import com.jungwook.fileserver.domain.BlockedExtension;
 import com.jungwook.fileserver.domain.Group;
 import com.jungwook.fileserver.domain.Member;
 import com.jungwook.fileserver.dto.GetBlockedExtensionsResponse;
+import com.jungwook.fileserver.projection.BlockedExtensionIdNameProjection;
 import com.jungwook.fileserver.repository.BlockedExtensionRepository;
 import com.jungwook.fileserver.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -28,7 +28,7 @@ public class ExtensionService {
 
   public List<GetBlockedExtensionsResponse> getBlockedExtensions(UUID memberId) {
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
-    List<BlockedExtension> extensions = blockedExtensionRepository.findByGroupIdAndDeletedAtIsNull(groupId);
+    List<BlockedExtensionIdNameProjection> extensions = blockedExtensionRepository.findByGroupIdAndDeletedAtIsNull(groupId, BlockedExtensionIdNameProjection.class);
     List<GetBlockedExtensionsResponse> responses = new ArrayList<>();
     for(var extension : extensions) {
       var response = GetBlockedExtensionsResponse.builder()
@@ -42,14 +42,20 @@ public class ExtensionService {
 
   @Transactional
   public void blockExtension(UUID memberId, String extensionName) {
+    if (!extensionName.matches("^[a-zA-Z0-9]+$")) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "확장자는 영문자와 숫자만 입력 가능합니다.");
+    }
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
     BlockedExtension extension = BlockedExtension.builder()
-        .name(extensionName)
-        .createdAt(Instant.now())
+        .name(extensionName.toLowerCase())
         .createdBy(Member.builder().id(memberId).build())
         .group(Group.builder().id(groupId).build())
         .build();
-    blockedExtensionRepository.save(extension);
+    try {
+      blockedExtensionRepository.saveAndFlush(extension);
+    } catch (DataIntegrityViolationException e) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 업로드가 제한된 확장자입니다.");
+    }
   }
 
   @Transactional

@@ -14,15 +14,13 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BlockedExtension {
+public class Metadata {
   @Id
   @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
   private UUID id;
 
-  @Column(length = 20, nullable = false, unique = true)
+  @Column(nullable = false)
   private String name;
-
-  private Instant deletedAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
@@ -31,6 +29,8 @@ public class BlockedExtension {
       nullable = false
   )
   private Member createdBy;
+
+  private Instant deletedAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
