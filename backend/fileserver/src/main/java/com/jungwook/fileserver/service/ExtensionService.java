@@ -26,7 +26,7 @@ public class ExtensionService {
 
   public List<GetBlockedExtensionsResponse> getBlockedExtensions(UUID memberId) {
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
-    List<BlockedExtension> extensions = blockedExtensionRepository.findByGroupIdAndDeletedAtIsNull(groupId);
+    List<BlockedExtension> extensions = blockedExtensionRepository.findByGroupIdAndDeletedAtIsNull(groupId, BlockedExtension.class);
     List<GetBlockedExtensionsResponse> responses = new ArrayList<>();
     for(var extension : extensions) {
       var response = GetBlockedExtensionsResponse.builder()

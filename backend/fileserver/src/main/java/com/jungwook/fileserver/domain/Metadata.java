@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileMetadata {
+public class Metadata {
   @Id
   @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
   private UUID id;
@@ -22,8 +22,13 @@ public class FileMetadata {
   @Column(nullable = false)
   private String name;
 
-  @Column(nullable = false)
-  private String createdBy;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(
+      name = "created_by_member_id",
+      foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
+      nullable = false
+  )
+  private Member createdBy;
 
   private Instant deletedAt;
 
