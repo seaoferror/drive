@@ -28,5 +28,4 @@ public class FileController {
     fileService.uploadMultipartFile(memberId, file);
     return ResponseEntity.ok("ok");
   }
-
 }

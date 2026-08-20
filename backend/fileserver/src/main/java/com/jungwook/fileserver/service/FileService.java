@@ -1,7 +1,6 @@
 package com.jungwook.fileserver.service;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.jungwook.fileserver.domain.BlockedExtension;
 import com.jungwook.fileserver.domain.Group;
 import com.jungwook.fileserver.domain.Member;
 import com.jungwook.fileserver.domain.Metadata;
@@ -62,7 +61,7 @@ public class FileService {
     }
     String uploadedFileExtension = StringUtils.getFilenameExtension(originalFilename);
     if (uploadedFileExtension == null) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "파일 확장자를 표기해주세요");
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "파일 확장자를 설정해주세요");
     }
     String lowerCasedUploadedFileExtension = uploadedFileExtension.toLowerCase();
     var metadata = Metadata.builder()
@@ -71,20 +70,20 @@ public class FileService {
         .createdBy(Member.builder().id(memberId).build())
         .group(Group.builder().id(groupId).build())
         .build();
-    try (var inputStream = file.getInputStream()) {
-      uploadedFileMimetype = tika.detect(inputStream);
+    try (var streamForTika = file.getInputStream()) {
+      uploadedFileMimetype = tika.detect(streamForTika);
       if (blockedMimetypes.contains(uploadedFileMimetype) || blockedCustomExtensions.contains(lowerCasedUploadedFileExtension)) {
         throw new RuntimeException();
       }
     } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "업로드할 수 없는 파일입니다");
     }
-    try (var inputStream = file.getInputStream()) {
+    try (var streamForS3 = file.getInputStream()) {
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(bucketName)
           .key(metadata.getId().toString() + "." + lowerCasedUploadedFileExtension)
           .build();
-      s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(inputStream, file.getSize()));
+      s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(streamForS3, file.getSize()));
     } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "업로드할 수 없는 파일입니다");
     }
