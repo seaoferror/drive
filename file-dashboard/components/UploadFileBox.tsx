@@ -63,9 +63,20 @@ export default function UploadFileBox({
       setStatus("success");
       setFile(null);
       if (onUploadSuccess) onUploadSuccess();
-    } catch (error) {
+    } catch (error:any) {
       setStatus("error");
-      setErrorMessage(String(error) || "Something went wrong during upload.");
+      if (error instanceof AxiosError) {
+        const data = error.response?.data;
+        const message =
+          typeof data === "string"
+            ? data
+            : (data?.message ??
+              data?.detail ??
+              "업로드 중 오류가 발생했습니다");
+        setErrorMessage(message);
+      } else {
+        setErrorMessage("업로드 중 오류가 발생했습니다");
+      }
     }
   };
 
