@@ -39,7 +39,7 @@ export default function LoginPage() {
         onSuccess: async (data) => {
           console.log(data);
           setAccessToken(data.accessToken);
-          router.replace("/");
+          router.replace("/policy");
         },
       },
     );

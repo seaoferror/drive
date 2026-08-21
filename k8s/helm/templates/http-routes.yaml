@@ -38,6 +38,7 @@ spec:
   cors:
     allowOrigins:
       - "http://localhost:3000"
+      - "https://app.mikekim1032.shop"
     allowMethods:
       - GET
       - POST
@@ -46,6 +47,7 @@ spec:
       - PATCH
       - OPTIONS
     allowHeaders:
+      - "Set-Cookie"
       - "Authorization"
       - "Content-Type"
     allowCredentials: true
