@@ -18,6 +18,9 @@ spring:
     hibernate:
       ddl-auto: create
     show_sql: true
+logging:
+  level:
+    org.hibernate.orm.connections.pooling: WARN
 valkey:
   host: localhost
   port: 6379

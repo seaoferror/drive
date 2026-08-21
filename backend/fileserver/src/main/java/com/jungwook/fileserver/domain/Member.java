@@ -31,8 +31,8 @@ public class Member {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
-      name = "group_id",
+      name = "team_id",
       nullable = false
   )
-  private Group group;
+  private Team team;
 }

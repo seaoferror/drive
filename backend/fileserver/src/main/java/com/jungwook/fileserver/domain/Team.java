@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Group {
+public class Team {
   @Id
   @UuidGenerator(style = UuidGenerator.Style.VERSION_7)
   private UUID id;

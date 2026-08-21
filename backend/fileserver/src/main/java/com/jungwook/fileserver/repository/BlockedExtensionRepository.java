@@ -15,15 +15,15 @@ import java.util.UUID;
 
 @Repository
 public interface BlockedExtensionRepository extends JpaRepository<BlockedExtension, UUID> {
-  <T> List<T> findByGroupIdAndDeletedAtIsNull(UUID groupId, Class<T> type);
+  <T> List<T> findByTeamIdAndDeletedAtIsNull(UUID teamId, Class<T> type);
 
-  boolean existsByNameAndDeletedAtIsNullAndGroupId(String name, UUID groupId);
+  boolean existsByNameAndDeletedAtIsNullAndTeamId(String name, UUID teamId);
 
   @Query("SELECT e.name FROM BlockedExtension e WHERE e.id = :extensionId")
   String findNameByExtensionId(@Param("extensionId") UUID extensionId);
 
-  @Query("SELECT e.group.id FROM BlockedExtension e WHERE e.id = :extensionId")
-  Optional<UUID> findGroupIdByExtensionId(@Param("extensionId") UUID extensionId);
+  @Query("SELECT e.team.id FROM BlockedExtension e WHERE e.id = :extensionId")
+  Optional<UUID> findTeamIdByExtensionId(@Param("extensionId") UUID extensionId);
 
   @Modifying(clearAutomatically = true)
   @Query("UPDATE BlockedExtension b SET b.deletedAt = :deletedAt, b.deletedBy = :deletedBy WHERE b.id = :extensionId")

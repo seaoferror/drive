@@ -42,9 +42,9 @@ public class Metadata {
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
-      name = "group_id",
+      name = "team_id",
       foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
       nullable = false
   )
-  private Group group;
+  private Team team;
 }

@@ -1,7 +1,7 @@
 package com.jungwook.fileserver.service;
 
 import com.github.f4b6a3.uuid.UuidCreator;
-import com.jungwook.fileserver.domain.Group;
+import com.jungwook.fileserver.domain.Team;
 import com.jungwook.fileserver.domain.Member;
 import com.jungwook.fileserver.domain.Metadata;
 import com.jungwook.fileserver.projection.BlockedExtensionNameProjection;
@@ -42,9 +42,9 @@ public class FileService {
   @Transactional
   public void uploadMultipartFile(UUID memberId, MultipartFile file) {
     //TODO: scan file with clamav first
-    UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
+    UUID teamId = memberRepository.findTeamIdByMemberId(memberId);
     //TODO: caching the blocked mimetypes and custom extensions in redis/valkey
-    List<BlockedExtensionNameProjection> extensions = blockedExtensionRepository.findByGroupIdAndDeletedAtIsNull(groupId, BlockedExtensionNameProjection.class);
+    List<BlockedExtensionNameProjection> extensions = blockedExtensionRepository.findByTeamIdAndDeletedAtIsNull(teamId, BlockedExtensionNameProjection.class);
     List<String> blockedMimetypes = new ArrayList<>();
     List<String> blockedCustomExtensions = new ArrayList<>();
     for (var extension : extensions) {
@@ -69,7 +69,7 @@ public class FileService {
         .id(UuidCreator.getTimeOrderedEpoch())
         .name(originalFilename)
         .createdBy(Member.builder().id(memberId).build())
-        .group(Group.builder().id(groupId).build())
+        .team(Team.builder().id(teamId).build())
         .build();
     try (var streamForTika = file.getInputStream()) {
       uploadedFileMimetype = tika.detect(streamForTika);
