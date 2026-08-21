@@ -102,7 +102,7 @@ export default function UploadFileBox({
             <span {...stylex.props(styles.fileName)}>{file.name}</span>
           ) : (
             <span {...stylex.props(styles.placeholderText)}>
-              Click to select or drag and drop a file here
+              여기를 클릭하거나 파일을 드래그 앤 드롭해주세요
             </span>
           )}
         </div>
@@ -114,14 +114,14 @@ export default function UploadFileBox({
 
       {status === "success" && (
         <span {...stylex.props(styles.successText)}>
-          File uploaded successfully!
+          파일 업로드 성공!
         </span>
       )}
 
       <CustomButton
         variant="outlined"
         size="medium"
-        label={status === "uploading" ? "Uploading..." : "Upload File"}
+        label={status === "uploading" ? "업로드중..." : "Upload"}
         onPress={handleUploadClick}
         disabled={!file || status === "uploading"}
         style={styles.uploadButton}

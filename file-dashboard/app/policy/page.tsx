@@ -126,10 +126,10 @@ export default function ExtensionManager() {
 
         <div>
           <label {...stylex.props(styles.sectionLabel)}>
-            Custom Extensions
+            커스텀 확장자
           </label>
           <p {...stylex.props(styles.sectionParagraph)}>
-            커스텀 확장자 (최대 {MAX_LENGTH}자). 최대 추가 개수:{" "}
+            최대 {MAX_LENGTH}자, 최대 추가 개수:{" "}
             {customExtensions.length}/{MAX_CUSTOM_EXTENSIONS}
           </p>
 
@@ -211,7 +211,7 @@ const styles = stylex.create({
     display: "block",
     fontSize: "16px",
     fontWeight: 600,
-    marginBottom: "4px",
+    marginBottom: "14px",
     color: "#334155"
   },
   sectionParagraph: {
