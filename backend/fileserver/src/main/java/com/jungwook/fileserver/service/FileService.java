@@ -83,7 +83,7 @@ public class FileService {
     try (var streamForS3 = file.getInputStream()) {
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(bucketName)
-          .key(id.toString() + "." + lowerCasedUploadedFileExtension)
+          .key("drive/"+id.toString() + "." + lowerCasedUploadedFileExtension)
           .build();
       s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(streamForS3, file.getSize()));
     } catch (Exception e) {
