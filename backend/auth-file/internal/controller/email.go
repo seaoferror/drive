@@ -34,6 +34,7 @@ func (c *Controller) loginWithEmail(w http.ResponseWriter, r *http.Request) {
 			Domain:   "",
 			HttpOnly: true,
 			Secure:   true,
+			MaxAge:   constant.RefreshTokenTTL,
 			SameSite: http.SameSiteNoneMode,
 		})
 	}
