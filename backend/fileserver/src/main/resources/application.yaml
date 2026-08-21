@@ -16,6 +16,11 @@ spring:
     hibernate:
       ddl-auto: validate
     show_sql: true
+  web:
+    error:
+      include-message: always
+      include-binding-errors: always
+      include-stacktrace: never
 logging:
   level:
     org.hibernate.orm.connections.pooling: WARN
