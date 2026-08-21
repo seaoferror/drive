@@ -19,6 +19,9 @@ public interface BlockedExtensionRepository extends JpaRepository<BlockedExtensi
 
   boolean existsByNameAndDeletedAtIsNullAndGroupId(String name, UUID groupId);
 
+  @Query("SELECT e.name FROM BlockedExtension e WHERE e.id = :extensionId")
+  String findNameByExtensionId(@Param("extensionId") UUID extensionId);
+
   @Query("SELECT e.group.id FROM BlockedExtension e WHERE e.id = :extensionId")
   Optional<UUID> findGroupIdByExtensionId(@Param("extensionId") UUID extensionId);
 

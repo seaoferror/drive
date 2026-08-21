@@ -6,9 +6,9 @@ import com.jungwook.fileserver.domain.Member;
 import com.jungwook.fileserver.dto.GetBlockedExtensionsResponse;
 import com.jungwook.fileserver.projection.BlockedExtensionIdNameProjection;
 import com.jungwook.fileserver.repository.BlockedExtensionRepository;
+import com.jungwook.fileserver.repository.GroupRepository;
 import com.jungwook.fileserver.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +25,9 @@ import java.util.UUID;
 public class ExtensionService {
   private final BlockedExtensionRepository blockedExtensionRepository;
   private final MemberRepository memberRepository;
+  private final GroupRepository groupRepository;
+
+  private static final List<String> FIXED_EXTENSIONS = new ArrayList<>(List.of("bat", "cmd", "com", "cpl", "exe", "scr", "js"));
 
   public List<GetBlockedExtensionsResponse> getBlockedExtensions(UUID memberId) {
     UUID groupId = memberRepository.findGroupIdByMemberId(memberId);
@@ -51,6 +54,13 @@ public class ExtensionService {
         .existsByNameAndDeletedAtIsNullAndGroupId(lowerCasedExtensionName, groupId)) {
       throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 차단된 확장자입니다.");
     }
+    if(!FIXED_EXTENSIONS.contains(lowerCasedExtensionName)){
+      Integer current = groupRepository.findNumberOfBlockedCustomExtensionsById(groupId);
+      if(current >= 200) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "커스텀 확장자는 200개까지만 추가할 수 있습니다.");
+      }
+      groupRepository.increaseNumberOfBlockedCustomExtensions(groupId, 1);
+    }
 
     BlockedExtension extension = BlockedExtension.builder()
         .name(lowerCasedExtensionName)
@@ -71,6 +81,10 @@ public class ExtensionService {
           HttpStatus.BAD_REQUEST,
           "이 확장자는 삭제할 권한이 없습니다"
       );
+    }
+    String name = blockedExtensionRepository.findNameByExtensionId(extensionId);
+    if(!FIXED_EXTENSIONS.contains(name)) {
+      groupRepository.increaseNumberOfBlockedCustomExtensions(extensionGroupId, -1);
     }
     blockedExtensionRepository.softDeleteById(
         extensionId,

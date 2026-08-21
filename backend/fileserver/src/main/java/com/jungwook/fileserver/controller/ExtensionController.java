@@ -38,7 +38,7 @@ public class ExtensionController {
     return ResponseEntity.ok("ok");
   }
 
-  @DeleteMapping("/fileserver/extension/unblock")
+  @PatchMapping("/fileserver/extension/unblock")
   public ResponseEntity<?> unblockExtension(
       @NotNull @RequestHeader("X-User-Id") UUID memberId,
       @NotNull @RequestHeader("X-User-Role") String role,
