@@ -76,7 +76,7 @@ spec:
             {{- end }}
             {{- if $app.postgres}}
             - name: postgres-volume
-              mountPath: "/.postgres"
+              mountPath: "/root/.postgresql"
             {{- end }}
       volumes:
         {{- if $app.authentication}}

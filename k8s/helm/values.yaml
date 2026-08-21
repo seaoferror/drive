@@ -10,7 +10,7 @@ circuitBreaker:
   maxParallelRequests: 100 # Limits active, concurrent HTTP requests
 
 apps:
-  auth:
+  auth-file:
     image: "backend/auth-file:latest"
     port: 8080
     routePath: /auth-file
@@ -22,7 +22,7 @@ apps:
 #    memoryRequests: "10Mi"
 #    cpuLimits: "0.1"
 #    memoryLimits: "10Mi"
-  chat:
+  fileserver:
     image: "backend/fileserver:latest"
     port: 8080
     routePath: /fileserver
