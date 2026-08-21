@@ -65,8 +65,9 @@ public class FileService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "파일 확장자를 설정해주세요");
     }
     String lowerCasedUploadedFileExtension = uploadedFileExtension.toLowerCase();
+    UUID id = UuidCreator.getTimeOrderedEpoch();
     var metadata = Metadata.builder()
-        .id(UuidCreator.getTimeOrderedEpoch())
+        .id(id)
         .name(originalFilename)
         .createdBy(Member.builder().id(memberId).build())
         .team(Team.builder().id(teamId).build())
@@ -82,7 +83,7 @@ public class FileService {
     try (var streamForS3 = file.getInputStream()) {
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(bucketName)
-          .key(metadata.getId().toString() + "." + lowerCasedUploadedFileExtension)
+          .key(id.toString() + "." + lowerCasedUploadedFileExtension)
           .build();
       s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(streamForS3, file.getSize()));
     } catch (Exception e) {
