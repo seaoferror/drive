@@ -5,6 +5,7 @@ import * as stylex from "@stylexjs/stylex";
 import { colors } from "@/constants/colors.stylex";
 import CustomButton from "@/components/CustomButton";
 import { uploadFile } from "@/api/file";
+import { AxiosError } from "axios";
 
 interface FileUploadProps {
   onUploadSuccess?: () => void;
@@ -64,7 +65,7 @@ export default function UploadFileBox({
       if (onUploadSuccess) onUploadSuccess();
     } catch (error: any) {
       setStatus("error");
-      setErrorMessage(error.message || "Something went wrong during upload.");
+      setErrorMessage(error?.response.data || "Something went wrong during upload.");
     }
   };
 
