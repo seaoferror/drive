@@ -25,26 +25,34 @@ spec:
 {{- end}}
 
 ---
-
-{{- if not $app.authentication }}
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: SecurityPolicy
 metadata:
-  name: {{ $name }}-jwt-auth
+  name: {{ $name }}-security-policy
   namespace: {{ $.Values.namespace }}
 spec:
   targetRef:
     group: gateway.networking.k8s.io
     kind: HTTPRoute
     name: {{ $name }}-route
+  cors:
+    allowOrigins:
+      - "http://localhost:3000"
+    allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - PATCH
+      - OPTIONS
+    allowHeaders:
+      - "Authorization"
+      - "Content-Type"
+    allowCredentials: true
+  {{- if not $app.authentication }}
   jwt:
     providers:
       - name: jwt-provider
-{{/*        extractFrom:*/}}
-{{/*          headers:*/}}
-{{/*            - name: Authorization*/}}
-{{/*              valuePrefix: "Bearer "*/}}
-{{/*            - name: Sec-WebSocket-Protocol*/}}
         claimToHeaders:
           - claim: sub
             header: X-User-Id
@@ -56,7 +64,7 @@ spec:
             group: ""
             kind: ConfigMap
             name: public-key-at
-{{- end }}
+  {{- end }}
 
 ---
 apiVersion: gateway.envoyproxy.io/v1alpha1
