@@ -39,7 +39,7 @@ export default function ExtensionManager() {
     const unblockingThis =
       unblockExtensionMutation.isPending &&
       blockedExtensions.find((item) => item.name === ext)?.id ===
-        unblockExtensionMutation.variables?.id;
+      unblockExtensionMutation.variables?.id;
     return blockingThis || unblockingThis;
   };
 
@@ -189,7 +189,7 @@ const styles = stylex.create({
     justifyContent: "center",
     minHeight: "100vh",
     padding: "24px",
-    boxSizing: "border-box",
+    boxSizing: "border-box"
   },
   container: {
     width: "100%", // Ensures it scales properly on smaller screens
@@ -198,35 +198,35 @@ const styles = stylex.create({
     backgroundColor: "#ffffff",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
     borderRadius: "8px",
-    fontFamily: "system-ui, -apple-system, sans-serif",
+    fontFamily: "system-ui, -apple-system, sans-serif"
   },
   heading: {
     fontSize: "20px",
     fontWeight: 600,
     marginTop: 0,
     marginBottom: "24px",
-    color: "#0f172a",
+    color: "#0f172a"
   },
   sectionLabel: {
     display: "block",
     fontSize: "16px",
     fontWeight: 600,
     marginBottom: "4px",
-    color: "#334155",
+    color: "#334155"
   },
   sectionParagraph: {
     fontSize: "14px",
     marginTop: 0,
     marginBottom: "16px",
-    color: "#64748b",
+    color: "#64748b"
   },
   fixedSection: {
-    marginBottom: "32px",
+    marginBottom: "32px"
   },
   checkboxGrid: {
     display: "flex",
     flexWrap: "wrap",
-    gap: "16px",
+    gap: "16px"
   },
   checkboxWrapper: {
     display: "flex",
@@ -234,33 +234,33 @@ const styles = stylex.create({
     gap: "8px",
     cursor: {
       default: "pointer",
-      ":has(input:disabled)": "not-allowed",
-    },
+      ":has(input:disabled)": "not-allowed"
+    }
   },
   checkboxInput: {
     width: "16px",
     height: "16px",
-    cursor: "pointer",
+    cursor: "pointer"
   },
   checkboxText: {
     fontSize: "14px",
     fontWeight: 500,
-    color: "#334155",
+    color: "#334155"
   },
   divider: {
     borderBottomWidth: "1px",
     borderBottomStyle: "solid",
     borderBottomColor: "#e2e8f0",
-    marginBottom: "24px",
+    marginBottom: "24px"
   },
   form: {
     display: "flex",
     alignItems: "flex-start",
     gap: "8px",
-    marginBottom: "16px",
+    marginBottom: "16px"
   },
   formInputWrapper: {
-    flexGrow: 1,
+    flexGrow: 1
   },
   submitBtn: {
     height: "44px",
@@ -273,15 +273,15 @@ const styles = stylex.create({
     borderRadius: "6px",
     cursor: {
       default: "pointer",
-      ":disabled": "not-allowed",
+      ":disabled": "not-allowed"
     },
     transitionProperty: "background-color",
     transitionDuration: "0.2s",
     backgroundColor: {
       default: "#2563eb",
       ":hover": "#1d4ed8",
-      ":disabled": "#94a3b8",
-    },
+      ":disabled": "#94a3b8"
+    }
   },
   customTagsContainer: {
     minHeight: "150px",
@@ -295,14 +295,14 @@ const styles = stylex.create({
     flexWrap: "wrap",
     alignItems: "flex-start",
     alignContent: "flex-start",
-    gap: "8px",
+    gap: "8px"
   },
   emptyText: {
     width: "100%",
     textAlign: "center",
     marginTop: "40px",
     color: "#545454",
-    fontSize: "14px",
+    fontSize: "14px"
   },
   customTag: {
     display: "inline-flex",
@@ -315,7 +315,7 @@ const styles = stylex.create({
     paddingLeft: "12px",
     borderRadius: "9999px",
     fontSize: "14px",
-    fontWeight: 500,
+    fontWeight: 500
   },
   customTagCloseBtn: {
     display: "flex",
@@ -328,7 +328,7 @@ const styles = stylex.create({
     padding: "4px",
     color: {
       default: "#64748b",
-      ":hover": "#ef4444",
+      ":hover": "#ef4444"
     },
     fontSize: "12px",
     borderRadius: "50%",
@@ -336,7 +336,7 @@ const styles = stylex.create({
     transitionDuration: "0.2s",
     backgroundColor: {
       default: "transparent",
-      ":hover": "#fee2e2",
-    },
-  },
+      ":hover": "#fee2e2"
+    }
+  }
 });

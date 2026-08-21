@@ -119,6 +119,8 @@ export default function UploadFileBox({
       )}
 
       <CustomButton
+        variant="outlined"
+        size="medium"
         label={status === "uploading" ? "Uploading..." : "Upload File"}
         onPress={handleUploadClick}
         disabled={!file || status === "uploading"}
