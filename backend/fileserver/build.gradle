@@ -24,7 +24,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'com.fasterxml.jackson.core:jackson-databind'
     implementation 'io.valkey:valkey-glide:2.4.1'
-    implementation 'com.github.f4b6a3:uuid-creator:6.1.1'
     implementation 'org.apache.tika:tika-core:3.3.2'
     implementation 'software.amazon.awssdk:s3:2.54.0'
     compileOnly 'org.projectlombok:lombok'

@@ -1,6 +1,5 @@
 package com.jungwook.fileserver.service;
 
-import com.github.f4b6a3.uuid.UuidCreator;
 import com.jungwook.fileserver.domain.Team;
 import com.jungwook.fileserver.domain.Member;
 import com.jungwook.fileserver.domain.Metadata;
@@ -9,6 +8,7 @@ import com.jungwook.fileserver.repository.BlockedExtensionRepository;
 import com.jungwook.fileserver.repository.MetadataRepository;
 import com.jungwook.fileserver.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -65,13 +66,12 @@ public class FileService {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "파일 확장자를 설정해주세요");
     }
     String lowerCasedUploadedFileExtension = uploadedFileExtension.toLowerCase();
-    UUID id = UuidCreator.getTimeOrderedEpoch();
     var metadata = Metadata.builder()
-        .id(id)
         .name(originalFilename)
         .createdBy(Member.builder().id(memberId).build())
         .team(Team.builder().id(teamId).build())
         .build();
+    metadataRepository.save(metadata);
     try (var streamForTika = file.getInputStream()) {
       uploadedFileMimetype = tika.detect(streamForTika);
       if (blockedMimetypes.contains(uploadedFileMimetype) || blockedCustomExtensions.contains(lowerCasedUploadedFileExtension)) {
@@ -83,12 +83,12 @@ public class FileService {
     try (var streamForS3 = file.getInputStream()) {
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(bucketName)
-          .key("drive/"+id.toString() + "." + lowerCasedUploadedFileExtension)
+          .key("drive/"+metadata.getId().toString() + "." + lowerCasedUploadedFileExtension)
           .build();
+      log.info("metadata id: {}", metadata.getId());
       s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(streamForS3, file.getSize()));
     } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "업로드할 수 없는 파일입니다");
     }
-    metadataRepository.save(metadata);
   }
 }

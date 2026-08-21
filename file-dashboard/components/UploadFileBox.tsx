@@ -10,7 +10,7 @@ interface FileUploadProps {
   onUploadSuccess?: () => void;
 }
 
-export default function FileUpload({
+export default function UploadFileBox({
   onUploadSuccess,
 }: FileUploadProps) {
   const [file, setFile] = useState<File | null>(null);
