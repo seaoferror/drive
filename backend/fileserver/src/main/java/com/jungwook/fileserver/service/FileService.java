@@ -70,6 +70,7 @@ public class FileService {
         .name(originalFilename)
         .createdBy(Member.builder().id(memberId).build())
         .team(Team.builder().id(teamId).build())
+        .extension(lowerCasedUploadedFileExtension)
         .build();
     metadataRepository.save(metadata);
     try (var streamForTika = file.getInputStream()) {
@@ -83,7 +84,7 @@ public class FileService {
     try (var streamForS3 = file.getInputStream()) {
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(bucketName)
-          .key("drive/"+metadata.getId().toString() + "." + lowerCasedUploadedFileExtension)
+          .key("drive/"+ teamId.toString() + "/" + metadata.getId().toString() + "." + lowerCasedUploadedFileExtension)
           .build();
       log.info("metadata id: {}", metadata.getId());
       s3Client.putObject(putObjectRequest, RequestBody.fromInputStream(streamForS3, file.getSize()));

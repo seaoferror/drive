@@ -22,6 +22,9 @@ public class Metadata {
   @Column(nullable = false)
   private String name;
 
+  @Column(nullable = false)
+  private String extension;
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
       name = "created_by_member_id",
