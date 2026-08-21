@@ -1,7 +1,13 @@
 "use client";
 
+import FileUpload from "@/components/UploadFile";
+
 export default function FilePage() {
   return (
-    <div></div>
+    <div style={{ padding: 40, display: "flex", justifyContent: "center" }}>
+      <FileUpload
+        onUploadSuccess={() => console.log("Refresh the file list!")}
+      />
+    </div>
   );
 }

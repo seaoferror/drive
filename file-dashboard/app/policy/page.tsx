@@ -89,76 +89,80 @@ export default function ExtensionManager() {
   if (isLoading) return null;
 
   return (
-    <div {...stylex.props(styles.container)}>
-      <h2 {...stylex.props(styles.heading)}>확장자 차단 정책</h2>
+    <div {...stylex.props(styles.pageWrapper)}>
+      <div {...stylex.props(styles.container)}>
+        <h2 {...stylex.props(styles.heading)}>확장자 차단 정책</h2>
 
-      <div {...stylex.props(styles.fixedSection)}>
-        <label {...stylex.props(styles.sectionLabel)}>고정 확장자</label>
-        <div {...stylex.props(styles.checkboxGrid)}>
-          {FIXED_EXTENSIONS.map((ext) => (
-            <label key={ext} {...stylex.props(styles.checkboxWrapper)}>
-              <input
-                type="checkbox"
-                checked={fixedBlockedNames.has(ext)}
-                onChange={() => handleFixedToggle(ext)}
-                {...stylex.props(styles.checkboxInput)}
-              />
-              <span {...stylex.props(styles.checkboxText)}>{ext}</span>
-            </label>
-          ))}
+        <div {...stylex.props(styles.fixedSection)}>
+          <label {...stylex.props(styles.sectionLabel)}>고정 확장자</label>
+          <div {...stylex.props(styles.checkboxGrid)}>
+            {FIXED_EXTENSIONS.map((ext) => (
+              <label key={ext} {...stylex.props(styles.checkboxWrapper)}>
+                <input
+                  type="checkbox"
+                  checked={fixedBlockedNames.has(ext)}
+                  onChange={() => handleFixedToggle(ext)}
+                  {...stylex.props(styles.checkboxInput)}
+                />
+                <span {...stylex.props(styles.checkboxText)}>{ext}</span>
+              </label>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div {...stylex.props(styles.divider)} />
+        <div {...stylex.props(styles.divider)} />
 
-      <div>
-        <label {...stylex.props(styles.sectionLabel)}>Custom Extensions</label>
-        <p {...stylex.props(styles.sectionParagraph)}>
-          커스텀 확장자 (최대 {MAX_LENGTH}자). 최대 추가 개수:{" "}
-          {customExtensions.length}/{MAX_CUSTOM_EXTENSIONS}
-        </p>
+        <div>
+          <label {...stylex.props(styles.sectionLabel)}>
+            Custom Extensions
+          </label>
+          <p {...stylex.props(styles.sectionParagraph)}>
+            커스텀 확장자 (최대 {MAX_LENGTH}자). 최대 추가 개수:{" "}
+            {customExtensions.length}/{MAX_CUSTOM_EXTENSIONS}
+          </p>
 
-        <FormProvider {...extensionForm}>
-          <form
-            onSubmit={extensionForm.handleSubmit(onSubmit)}
-            {...stylex.props(styles.form)}
-          >
-            <div {...stylex.props(styles.formInputWrapper)}>
-              <ExtensionInput />
-            </div>
-            <button
-              type="submit"
-              disabled={
-                blockExtensionMutation.isPending ||
-                customExtensions.length >= MAX_CUSTOM_EXTENSIONS
-              }
-              {...stylex.props(styles.submitBtn)}
+          <FormProvider {...extensionForm}>
+            <form
+              onSubmit={extensionForm.handleSubmit(onSubmit)}
+              {...stylex.props(styles.form)}
             >
-              Add
-            </button>
-          </form>
-        </FormProvider>
-
-        <div {...stylex.props(styles.customTagsContainer)}>
-          {customExtensions.length === 0 ? (
-            <p {...stylex.props(styles.emptyText)}>
-              등록된 커스텀 확장자가 없습니다.
-            </p>
-          ) : (
-            customExtensions.map((item) => (
-              <div key={item.id} {...stylex.props(styles.customTag)}>
-                <span>{item.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteCustom(item.id)}
-                  aria-label={`Remove ${item.name}`}
-                  {...stylex.props(styles.customTagCloseBtn)}
-                >
-                  ✕
-                </button>
+              <div {...stylex.props(styles.formInputWrapper)}>
+                <ExtensionInput />
               </div>
-            ))
-          )}
+              <button
+                type="submit"
+                disabled={
+                  blockExtensionMutation.isPending ||
+                  customExtensions.length >= MAX_CUSTOM_EXTENSIONS
+                }
+                {...stylex.props(styles.submitBtn)}
+              >
+                Add
+              </button>
+            </form>
+          </FormProvider>
+
+          <div {...stylex.props(styles.customTagsContainer)}>
+            {customExtensions.length === 0 ? (
+              <p {...stylex.props(styles.emptyText)}>
+                등록된 커스텀 확장자가 없습니다.
+              </p>
+            ) : (
+              customExtensions.map((item) => (
+                <div key={item.id} {...stylex.props(styles.customTag)}>
+                  <span>{item.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCustom(item.id)}
+                    aria-label={`Remove ${item.name}`}
+                    {...stylex.props(styles.customTagCloseBtn)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -166,9 +170,18 @@ export default function ExtensionManager() {
 }
 
 const styles = stylex.create({
+  // New wrapper style to center the container on the page
+  pageWrapper: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    minHeight: "100vh",
+    padding: "24px",
+    boxSizing: "border-box"
+  },
   container: {
+    width: "100%", // Ensures it scales properly on smaller screens
     maxWidth: "700px",
-    marginInline: "auto",
     padding: "24px",
     backgroundColor: "#ffffff",
     boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
