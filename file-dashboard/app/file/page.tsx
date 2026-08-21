@@ -1,6 +1,6 @@
 "use client";
 
-export default function UploadPage() {
+export default function FilePage() {
   return (
     <div></div>
   );
