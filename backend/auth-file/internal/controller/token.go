@@ -15,6 +15,7 @@ func tokenRouter(n *Controller) {
 func (c *Controller) refreshToken(w http.ResponseWriter, r *http.Request) {
 	rt, err := r.Cookie("refresh_token")
 	if err != nil {
+		slog.Error("fail to grab refresh_token", "err", err)
 		handleError(w, err)
 		return
 	}
