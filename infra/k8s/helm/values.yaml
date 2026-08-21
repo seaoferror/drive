@@ -1,0 +1,38 @@
+namespace: backend
+email: ""
+registry: "ghcr.io/seaoferror"
+
+circuitBreaker:
+  maxConnections: 100
+  consecutiveErrors: 5
+  baseEjectionTime: 30s
+  maxPendingRequests: 100 # Limits requests waiting in the queue
+  maxParallelRequests: 100 # Limits active, concurrent HTTP requests
+
+apps:
+  auth:
+    image: "backend/auth-file:latest"
+    port: 8080
+    routePath: /auth-file
+    authentication: true
+    aws: false
+    postgres: true
+    valkey: true
+#    cpuRequests: "0.03"
+#    memoryRequests: "10Mi"
+#    cpuLimits: "0.1"
+#    memoryLimits: "10Mi"
+  chat:
+    image: "backend/fileserver:latest"
+    port: 8080
+    routePath: /fileserver
+    authentication: false
+    aws: true
+    postgres: true
+    valkey: true
+    framework: spring
+#    cpuRequests: "0.03"
+#    memoryRequests: "10Mi"
+#    cpuLimits: "0.1"
+#    memoryLimits: "10Mi"
+

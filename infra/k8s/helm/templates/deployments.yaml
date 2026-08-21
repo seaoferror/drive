@@ -1,0 +1,142 @@
+{{- range $name, $app := .Values.apps }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $name }}
+spec:
+  # replicas: 1
+  selector:
+    matchLabels:
+      app: {{ $name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $name }}
+        framework: {{ $app.framework | default "none" }}
+    spec:
+      {{- if eq $.Values.registry "ghcr.io/seaoferror" }}
+      imagePullSecrets:
+        - name: ghcr
+      {{- end }}
+      containers:
+        - name: {{ $name }}
+          image: "{{ $.Values.registry }}/{{ $app.image }}"
+          imagePullPolicy: Always
+          ports:
+            - containerPort: {{ $app.port }}
+{{/*          resources:*/}}
+{{/*            requests:*/}}
+{{/*              cpu: {{ $app.cpuRequests }}*/}}
+{{/*              memory: {{ $app.memoryRequests }}*/}}
+{{/*            limits:*/}}
+{{/*              cpu: {{ $app.cpuLimits }}*/}}
+{{/*              memory: {{ $app.memoryLimits }}*/}}
+          env:
+            {{- if $app.valkey }}
+            - name: VALKEY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: valkey-user
+                  key: lule
+            {{- end}}
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+          envFrom:
+            - configMapRef:
+                name: config-map
+            {{- if $app.aws }}
+            - secretRef:
+                name: aws
+            {{- end }}
+            {{- if $app.postgres }}
+            - secretRef:
+                name: postgres
+            {{- end }}
+          volumeMounts:
+            {{- if $app.authentication}}
+            - name: authentication-volume
+              mountPath: "/cert/authentication"
+              readOnly: true
+            {{- end}}
+            {{- if $app.aws }}
+            - name: aws-volume
+              mountPath: "/cert/aws"
+              readOnly: true
+            {{- end }}
+            {{- if $app.valkey }}
+            - name: valkey-cert-volume
+              mountPath: "/cert/valkey"
+              readOnly: true
+            {{- end }}
+            {{- if $app.postgres}}
+            - name: postgres-volume
+              mountPath: "/.postgres"
+            {{- end }}
+      volumes:
+        {{- if $app.authentication}}
+        - name: authentication-volume
+          secret:
+            secretName: authentication-volume
+        {{- end}}
+        {{- if $app.aws }}
+        - name: aws-volume
+          secret:
+            secretName: aws-volume
+        {{- end }}
+        {{- if $app.valkey }}
+        - name: valkey-cert-volume
+          secret:
+            secretName: valkey-cert
+            items:
+              - key: ca.crt
+                path: ca.crt
+        {{- end }}
+        {{- if $app.postgres}}
+        - name: postgres-volume
+          secret:
+            secretName: postgres-volume
+        {{- end }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ $name }}
+spec:
+  selector:
+    app: {{ $name }}
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: {{ $app.port }}
+
+{{/*apiVersion: autoscaling/v2*/}}
+{{/*kind: HorizontalPodAutoscaler*/}}
+{{/*metadata:*/}}
+{{/*  name: {{ $name }}*/}}
+{{/*  namespace: {{ $.Values.namespace }}*/}}
+{{/*spec:*/}}
+{{/*  scaleTargetRef:*/}}
+{{/*    apiVersion: apps/v1*/}}
+{{/*    kind: Deployment*/}}
+{{/*    name: {{ $name }}*/}}
+{{/*  minReplicas: 1*/}}
+{{/*  maxReplicas: 2*/}}
+{{/*  metrics:*/}}
+{{/*    - type: Resource*/}}
+{{/*      resource:*/}}
+{{/*        name: cpu*/}}
+{{/*        target:*/}}
+{{/*          type: Utilization*/}}
+{{/*          averageUtilization: 80*/}}
+
+{{- end }}
