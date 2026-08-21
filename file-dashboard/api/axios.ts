@@ -4,7 +4,7 @@ import { refreshAccessToken } from "@/api/auth";
 
 export const axiosInstance = create({
   adapter: "fetch",
-  baseURL: `https://mikekim1032.shop`,
+  baseURL: `https://backend.mikekim1032.shop`,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

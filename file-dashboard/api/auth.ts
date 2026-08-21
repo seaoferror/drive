@@ -15,7 +15,7 @@ export async function refreshAccessToken(): Promise<{ accessToken: string }> {
     return data;
   } catch (err: any) {
     const message =
-      err.response?.data?.message || "Failed to refresh access token";
+      err.response?.data || "Failed to refresh access token";
     throw new Error(message);
   }
 }

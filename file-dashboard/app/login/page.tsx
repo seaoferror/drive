@@ -30,7 +30,6 @@ export default function LoginPage() {
 
   const onSubmit = (formValues: FormValue) => {
     const { email, password } = formValues;
-
     loginWithEmailMutation.mutate(
       {
         email,
@@ -38,6 +37,7 @@ export default function LoginPage() {
       },
       {
         onSuccess: async (data) => {
+          console.log(data);
           setAccessToken(data.accessToken);
           router.replace("/");
         },
