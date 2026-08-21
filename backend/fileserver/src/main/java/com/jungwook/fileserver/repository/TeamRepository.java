@@ -12,10 +12,10 @@ import java.util.UUID;
 @Repository
 public interface TeamRepository extends JpaRepository<Team, UUID> {
 
-  @Query("SELECT t.numberOfBlockedCustomExtensions FROM team t WHERE t.id = :teamId")
+  @Query("SELECT t.numberOfBlockedCustomExtensions FROM Team t WHERE t.id = :teamId")
   Integer findNumberOfBlockedCustomExtensionsById(@Param("teamId") UUID teamId);
 
   @Modifying(clearAutomatically = true)
-  @Query("UPDATE team t SET t.numberOfBlockedCustomExtensions = t.numberOfBlockedCustomExtensions + :amount WHERE t.id = :teamId")
+  @Query("UPDATE Team t SET t.numberOfBlockedCustomExtensions = t.numberOfBlockedCustomExtensions + :amount WHERE t.id = :teamId")
   void increaseNumberOfBlockedCustomExtensions(@Param("teamId") UUID teamId, @Param("amount") int amount);
 }
