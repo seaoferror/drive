@@ -32,16 +32,8 @@ export default function ExtensionManager() {
     defaultValues: { extension: "" }
   });
 
-  const isExtensionMutating = (ext: string) => {
-    const blockingThis =
-      blockExtensionMutation.isPending &&
-      blockExtensionMutation.variables?.name === ext;
-    const unblockingThis =
-      unblockExtensionMutation.isPending &&
-      blockedExtensions.find((item) => item.name === ext)?.id ===
-      unblockExtensionMutation.variables?.id;
-    return blockingThis || unblockingThis;
-  };
+  const isMutating =
+    blockExtensionMutation.isPending || unblockExtensionMutation.isPending;
 
   const blockedExtensions = data ?? [];
 
@@ -114,7 +106,7 @@ export default function ExtensionManager() {
                   checked={fixedBlockedNames.has(ext)}
                   onChange={() => handleFixedToggle(ext)}
                   {...stylex.props(styles.checkboxInput)}
-                  disabled={isExtensionMutating(ext)}
+                  disabled={isMutating}
                 />
                 <span {...stylex.props(styles.checkboxText)}>{ext}</span>
               </label>
@@ -125,12 +117,10 @@ export default function ExtensionManager() {
         <div {...stylex.props(styles.divider)} />
 
         <div>
-          <label {...stylex.props(styles.sectionLabel)}>
-            커스텀 확장자
-          </label>
+          <label {...stylex.props(styles.sectionLabel)}>커스텀 확장자</label>
           <p {...stylex.props(styles.sectionParagraph)}>
-            최대 {MAX_LENGTH}자, 최대 추가 개수:{" "}
-            {customExtensions.length}/{MAX_CUSTOM_EXTENSIONS}
+            최대 {MAX_LENGTH}자, 최대 추가 개수: {customExtensions.length}/
+            {MAX_CUSTOM_EXTENSIONS}
           </p>
 
           <FormProvider {...extensionForm}>
