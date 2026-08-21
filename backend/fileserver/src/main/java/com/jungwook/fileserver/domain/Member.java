@@ -32,6 +32,7 @@ public class Member {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(
       name = "team_id",
+      foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT),
       nullable = false
   )
   private Team team;
