@@ -63,9 +63,9 @@ export default function UploadFileBox({
       setStatus("success");
       setFile(null);
       if (onUploadSuccess) onUploadSuccess();
-    } catch (error: any) {
+    } catch (error) {
       setStatus("error");
-      setErrorMessage(error?.response.data || "Something went wrong during upload.");
+      setErrorMessage(String(error) || "Something went wrong during upload.");
     }
   };
 
