@@ -34,6 +34,7 @@ func (c *Controller) loginWithEmail(w http.ResponseWriter, r *http.Request) {
 			Domain:   "",
 			HttpOnly: true,
 			Secure:   true,
+			SameSite: http.SameSiteNoneMode,
 		})
 	}
 	w.WriteHeader(http.StatusOK)

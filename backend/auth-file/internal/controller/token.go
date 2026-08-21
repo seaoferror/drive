@@ -46,6 +46,7 @@ func (c *Controller) logout(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 		HttpOnly: true,
 		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
 	})
 	w.WriteHeader(http.StatusOK)
 }
