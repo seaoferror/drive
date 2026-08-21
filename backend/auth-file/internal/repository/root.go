@@ -19,7 +19,7 @@ type Repository struct {
 }
 
 func NewRepository() *Repository {
-	pool, err := pgxpool.New(context.Background(), os.Getenv("POSTGRES_URL"))
+	pool, err := pgxpool.New(context.Background(), "postgresql://"+os.Getenv("POSTGRES_URL"))
 	if err != nil {
 		slog.Error("failed to connect postgres", "err", err)
 		panic(err)
