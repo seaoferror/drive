@@ -8,17 +8,17 @@ export default function RootPage() {
   const router = useRouter();
   useEffect(() => {
     const wrapper = async () => {
-        try {
-          const { accessToken } = await refreshAccessToken();
-          if(accessToken) {
-            router.replace("/upload");
-            return;
-          }
-        } catch {
-          router.replace("/login");
+      try {
+        const { accessToken } = await refreshAccessToken();
+        if (accessToken) {
+          router.replace("/policy")
+          return;
         }
-        return;
-    }
+      } catch {
+        router.replace("/login");
+      }
+      return;
+    };
     wrapper();
   }, []);
 
