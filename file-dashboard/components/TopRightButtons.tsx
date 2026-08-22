@@ -20,7 +20,7 @@ export default function TopRightButtons() {
     }
   }, [data]);
 
-  if (pathname === "/login") {
+  if (pathname === "/login" || pathname === "") {
     return null;
   }
 
