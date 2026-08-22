@@ -5,10 +5,7 @@ import com.jungwook.fileserver.service.FileService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
@@ -21,11 +18,28 @@ public class FileController {
   private final FileService fileService;
 
   @PostMapping("/fileserver/upload")
-  public ResponseEntity<String> uploadFile(
+  public ResponseEntity<?> uploadFile(
       @NotNull @RequestHeader("X-User-Id") UUID memberId,
       @RequestParam("file") MultipartFile file
   ) {
     fileService.uploadMultipartFile(memberId, file);
     return ResponseEntity.ok("ok");
+  }
+
+  @GetMapping("/fileserver/file/list")
+  public ResponseEntity<?> getFileList(
+      @NotNull @RequestHeader("X-User-Id") UUID memberId
+  ) {
+    var responses = fileService.getFileList(memberId);
+    return ResponseEntity.ok(responses);
+  }
+
+  @GetMapping("/fileserver/file")
+  public ResponseEntity<?> getSignedURL(
+      @NotNull @RequestHeader("X-User-Id") UUID memberId,
+      @NotNull @RequestParam UUID fileId
+  ) {
+    var response = fileService.getSignedURL(memberId, fileId);
+    return ResponseEntity.ok(response);
   }
 }

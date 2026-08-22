@@ -3,7 +3,10 @@ package com.jungwook.fileserver.service;
 import com.jungwook.fileserver.domain.Team;
 import com.jungwook.fileserver.domain.Member;
 import com.jungwook.fileserver.domain.Metadata;
+import com.jungwook.fileserver.dto.GetFileListResponse;
+import com.jungwook.fileserver.dto.GetSignedURLResponse;
 import com.jungwook.fileserver.projection.BlockedExtensionNameProjection;
+import com.jungwook.fileserver.projection.MetadataIdNameProjection;
 import com.jungwook.fileserver.repository.BlockedExtensionRepository;
 import com.jungwook.fileserver.repository.MetadataRepository;
 import com.jungwook.fileserver.repository.MemberRepository;
@@ -91,5 +94,25 @@ public class FileService {
     } catch (Exception e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "업로드할 수 없는 파일입니다");
     }
+  }
+
+  public List<GetFileListResponse> getFileList(UUID memberId) {
+    var teamId = memberRepository.findTeamIdByMemberId(memberId);
+    var metadatas = metadataRepository
+        .findByTeamIdAndDeletedAtIsNull(teamId, MetadataIdNameProjection.class);
+    List<GetFileListResponse> responses = new ArrayList<>();
+    for(var metadata: metadatas) {
+      var response = GetFileListResponse.builder()
+          .id(metadata.getId())
+          .name(metadata.getName())
+          .build();
+      responses.add(response);
+    }
+    return responses;
+  }
+
+  public GetSignedURLResponse getSignedURL(UUID memberId, UUID fileId) {
+    
+    return null;
   }
 }
