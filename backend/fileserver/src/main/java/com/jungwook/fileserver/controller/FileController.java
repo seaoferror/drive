@@ -28,18 +28,10 @@ public class FileController {
 
   @GetMapping("/fileserver/file/list")
   public ResponseEntity<?> getFileList(
-      @NotNull @RequestHeader("X-User-Id") UUID memberId
-  ) {
-    var responses = fileService.getFileList(memberId);
-    return ResponseEntity.ok(responses);
-  }
-
-  @GetMapping("/fileserver/file/signed")
-  public ResponseEntity<?> getSignedURL(
       @NotNull @RequestHeader("X-User-Id") UUID memberId,
-      @NotNull @RequestParam UUID fileId
+      @RequestParam int page
   ) {
-    var response = fileService.getSignedURL(memberId, fileId);
-    return ResponseEntity.ok(response);
+    var responses = fileService.getFileList(memberId, page);
+    return ResponseEntity.ok(responses);
   }
 }

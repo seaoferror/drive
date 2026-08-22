@@ -4,9 +4,7 @@ import com.jungwook.fileserver.domain.Team;
 import com.jungwook.fileserver.domain.Member;
 import com.jungwook.fileserver.domain.Metadata;
 import com.jungwook.fileserver.dto.GetFileListResponse;
-import com.jungwook.fileserver.dto.GetSignedURLResponse;
 import com.jungwook.fileserver.projection.BlockedExtensionNameProjection;
-import com.jungwook.fileserver.projection.MetadataIdNameProjection;
 import com.jungwook.fileserver.repository.BlockedExtensionRepository;
 import com.jungwook.fileserver.repository.MetadataRepository;
 import com.jungwook.fileserver.repository.MemberRepository;
@@ -14,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +47,7 @@ public class FileService {
   private String keyPairId;
 
   @Value("${AWS_CLOUDFRONT_URL}")
-  private String cloudfrontUrl;
+  private String cloudfrontURL;
 
   @Value("${aws.cloudfront.private-key-path}")
   private Path privateKeyPath;
@@ -112,45 +112,34 @@ public class FileService {
     }
   }
 
-  public List<GetFileListResponse> getFileList(UUID memberId) {
+  public List<GetFileListResponse> getFileList(UUID memberId, int page) {
     var teamId = memberRepository.findTeamIdByMemberId(memberId);
     var metadatas = metadataRepository
-        .findByTeamIdAndDeletedAtIsNull(teamId, MetadataIdNameProjection.class);
+        .findByTeamIdAndDeletedAtIsNull(teamId, Metadata.class,
+            PageRequest.of(Math.max(0, page - 1), 5, Sort.by(Sort.Direction.DESC, "id")));
     List<GetFileListResponse> responses = new ArrayList<>();
     for(var metadata: metadatas) {
+      String objectKey = "drive/" + teamId.toString() + "/" + metadata.getId().toString() + "." + metadata.getExtension();
+      String resourceURL = cloudfrontURL + "/" + objectKey;
+      CannedSignerRequest request;
+      try {
+        request = CannedSignerRequest.builder()
+            .resourceUrl(resourceURL)
+            .privateKey(privateKeyPath)
+            .keyPairId(keyPairId)
+            .expirationDate(Instant.now().plus(10, ChronoUnit.MINUTES))
+            .build();
+      } catch (Exception e) {
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "잠시 후 다시 시도해 주세요");
+      }
+      SignedUrl signedUrl = cloudFrontUtilities.getSignedUrlWithCannedPolicy(request);
       var response = GetFileListResponse.builder()
           .id(metadata.getId())
           .name(metadata.getName())
+          .url(signedUrl.url())
           .build();
       responses.add(response);
     }
     return responses;
-  }
-
-  public GetSignedURLResponse getSignedURL(UUID memberId, UUID fileId) {
-    UUID teamId = memberRepository.findTeamIdByMemberId(memberId);
-    var metadata = metadataRepository.findById(fileId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "없는 파일입니다"));
-    var metadataTeamId = metadata.getTeam().getId();
-    if (!metadataTeamId.equals(teamId)) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "조회할 수 없는 파일 입니다");
-    }
-    String objectKey = "drive/" + teamId.toString() + "/" + metadata.getId().toString() + "." + metadata.getExtension();
-    String resourceUrl = cloudfrontUrl + "/" + objectKey;
-    CannedSignerRequest request;
-    try {
-      request = CannedSignerRequest.builder()
-          .resourceUrl(resourceUrl)
-          .privateKey(privateKeyPath)
-          .keyPairId(keyPairId)
-          .expirationDate(Instant.now().plus(10, ChronoUnit.MINUTES))
-          .build();
-    } catch (Exception e) {
-      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "잠시 후 다시 시도해 주세요");
-    }
-    SignedUrl signedUrl = cloudFrontUtilities.getSignedUrlWithCannedPolicy(request);
-    return GetSignedURLResponse.builder()
-        .url(signedUrl.url())
-        .build();
   }
 }
