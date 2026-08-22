@@ -15,6 +15,42 @@ CREATE TABLE blocked_extension (
 );
 ```
 
+Architecture
+```mermaid
+flowchart TB
+ subgraph Vercel_Env["Vercel"]
+        Frontend["Frontend Application"]
+  end
+ subgraph CF_Env["Cloudflare Network"]
+        Edge(("Cloudflare Edge"))
+  end
+ subgraph Grafana_Cloud["Grafana Cloud"]
+        Loki[("Loki / Logs")]
+  end
+ subgraph GCP_Env["Google Cloud Platform"]
+        Cockroach[("CockroachDB")]
+  end
+ subgraph K3s_Cluster["k3s Cluster(homelab)"]
+        Cloudflared["cloudflared daemon"]
+        Envoy["Envoy Gateway"]
+        Auth["Auth Server"]
+        FileSvc["File Service Server"]
+        Alloy(["Grafana Alloy"])
+  end
+    Client(["Client / Browser"]) -- Loads UI --> Frontend
+    Client -- API Requests --> Edge
+    Edge <== Secure Tunnel ==> Cloudflared
+    Cloudflared -- Ingress Traffic --> Envoy
+    Envoy -- httpRoute: /auth-file --> Auth
+    Envoy -- httpRoute: /fileserver --> FileSvc
+    Auth <-- SQL over TLS --> Cockroach
+    FileSvc <-- SQL over TLS --> Cockroach
+    Auth -. Logs .-> Alloy
+    FileSvc -. Logs .-> Alloy
+    Alloy == Export Logs via HTTPS ==> Loki
+```
+
+
 이외 member, team, metadata 스키마
 ```sql
 CREATE TABLE public.member (
