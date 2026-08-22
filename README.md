@@ -35,6 +35,10 @@ flowchart TB
  subgraph GCP_Env["Google Cloud Platform"]
         Cockroach[("CockroachDB")]
   end
+ subgraph AWS_Env["Amazon Web Services"]
+        S3[("S3 Bucket")]
+        CloudFront(("CloudFront"))
+ end 
  subgraph K3s_Cluster["k3s Cluster(homelab)"]
         Cloudflared["cloudflared daemon"]
         Envoy["Envoy Gateway"]
@@ -44,15 +48,18 @@ flowchart TB
   end
     Client(["Client / Browser"]) -- Loads UI --> Frontend
     Client -- API Requests --> Edge
+    Client <-- File downloads --> CloudFront
     Edge <== Secure Tunnel ==> Cloudflared
     Cloudflared -- Ingress Traffic --> Envoy
     Envoy -- httpRoute: /auth-file --> Auth
     Envoy -- httpRoute: /fileserver --> FileSvc
-    Auth <-- SQL over TLS --> Cockroach
-    FileSvc <-- SQL over TLS --> Cockroach
+    Auth <-- SQL --> Cockroach
+    FileSvc <-- SQL --> Cockroach
+    FileSvc -- File uploads --> S3
+    S3 -. Sync .-> CloudFront
     Auth -. Logs .-> Alloy
     FileSvc -. Logs .-> Alloy
-    Alloy == Export Logs via HTTPS ==> Loki
+    Alloy == Export Logs ==> Loki
 ```
 #
 
