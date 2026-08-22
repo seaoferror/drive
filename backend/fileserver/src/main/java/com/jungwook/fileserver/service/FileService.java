@@ -21,9 +21,15 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities;
+import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest;
+import software.amazon.awssdk.services.cloudfront.url.SignedUrl;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,11 +43,21 @@ public class FileService {
   @Value("${aws.bucket}")
   private String bucketName;
 
+  @Value("${AWS_CLOUDFRONT_KEY_ID}")
+  private String keyPairId;
+
+  @Value("${AWS_CLOUDFRONT_URL}")
+  private String cloudfrontUrl;
+
+  @Value("${aws.cloudfront.private-key-path}")
+  private Path privateKeyPath;
+
   private final MetadataRepository metadataRepository;
   private final BlockedExtensionRepository blockedExtensionRepository;
   private final MemberRepository memberRepository;
   private final Tika tika;
   private final S3Client s3Client;
+  private final CloudFrontUtilities cloudFrontUtilities;
 
   @Transactional
   public void uploadMultipartFile(UUID memberId, MultipartFile file) {
@@ -112,7 +128,29 @@ public class FileService {
   }
 
   public GetSignedURLResponse getSignedURL(UUID memberId, UUID fileId) {
-    
-    return null;
+    UUID teamId = memberRepository.findTeamIdByMemberId(memberId);
+    var metadata = metadataRepository.findById(fileId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "없는 파일입니다"));
+    var metadataTeamId = metadata.getTeam().getId();
+    if (!metadataTeamId.equals(teamId)) {
+      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "조회할 수 없는 파일 입니다");
+    }
+    String objectKey = "drive/" + teamId.toString() + "/" + metadata.getId().toString() + "." + metadata.getExtension();
+    String resourceUrl = cloudfrontUrl + "/" + objectKey;
+    CannedSignerRequest request;
+    try {
+      request = CannedSignerRequest.builder()
+          .resourceUrl(resourceUrl)
+          .privateKey(privateKeyPath)
+          .keyPairId(keyPairId)
+          .expirationDate(Instant.now().plus(10, ChronoUnit.MINUTES))
+          .build();
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "잠시 후 다시 시도해 주세요");
+    }
+    SignedUrl signedUrl = cloudFrontUtilities.getSignedUrlWithCannedPolicy(request);
+    return GetSignedURLResponse.builder()
+        .url(signedUrl.url())
+        .build();
   }
 }

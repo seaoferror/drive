@@ -34,7 +34,7 @@ public class FileController {
     return ResponseEntity.ok(responses);
   }
 
-  @GetMapping("/fileserver/file")
+  @GetMapping("/fileserver/file/signed")
   public ResponseEntity<?> getSignedURL(
       @NotNull @RequestHeader("X-User-Id") UUID memberId,
       @NotNull @RequestParam UUID fileId

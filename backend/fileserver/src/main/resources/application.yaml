@@ -32,3 +32,5 @@ aws:
   secretKey: ${AWS_SECRET_ACCESS_KEY}
   region: ${AWS_S3_REGION}
   bucket: ${AWS_S3_BUCKET_NAME}
+  cloudfront:
+    private-key-path: cert/aws/aws-cloudfront-private-key.pem

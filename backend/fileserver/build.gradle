@@ -26,6 +26,7 @@ dependencies {
     implementation 'io.valkey:valkey-glide:2.4.1'
     implementation 'org.apache.tika:tika-core:3.3.2'
     implementation 'software.amazon.awssdk:s3:2.54.0'
+    implementation 'software.amazon.awssdk:cloudfront:2.54.0'
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
