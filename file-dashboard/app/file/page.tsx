@@ -1,6 +1,5 @@
 "use client";
 
-
 import UploadFileBox from "@/components/UploadFileBox";
 
 export default function FilePage() {
@@ -11,7 +10,7 @@ export default function FilePage() {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        minHeight: "100vh",
+        minHeight: "100vh"
       }}
     >
       <UploadFileBox
