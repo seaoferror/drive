@@ -1,7 +1,10 @@
+실행방법
+---
 [app.mikekim1032.shop]()
-접속 후 플로우 댓글에 제공된 이메일 비밀번호로 로그인
+> 접속 후 플로우 댓글에 제공된 이메일 비밀번호로 로그인
 
 차단 정책 스키마
+---
 ```sql
 CREATE TABLE blocked_extension (
     id UUID NOT NULL,
@@ -15,7 +18,9 @@ CREATE TABLE blocked_extension (
 );
 ```
 
+
 Architecture
+---
 ```mermaid
 flowchart TB
  subgraph Vercel_Env["Vercel"]
@@ -33,8 +38,8 @@ flowchart TB
  subgraph K3s_Cluster["k3s Cluster(homelab)"]
         Cloudflared["cloudflared daemon"]
         Envoy["Envoy Gateway"]
-        Auth["Auth Server"]
-        FileSvc["File Service Server"]
+        Auth["Auth Server(k8s deployment)"]
+        FileSvc["File Service Server(k8s deployment)"]
         Alloy(["Grafana Alloy"])
   end
     Client(["Client / Browser"]) -- Loads UI --> Frontend
@@ -49,9 +54,10 @@ flowchart TB
     FileSvc -. Logs .-> Alloy
     Alloy == Export Logs via HTTPS ==> Loki
 ```
-
+#
 
 이외 member, team, metadata 스키마
+---
 ```sql
 CREATE TABLE public.member (
     id UUID NOT NULL,
