@@ -138,6 +138,7 @@ public class FileService {
           .name(metadata.getName())
           .url(signedUrl.url())
           .build();
+      log.info("signed url: {}", signedUrl.url());
       responses.add(response);
     }
     return responses;
