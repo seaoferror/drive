@@ -10,3 +10,9 @@ export interface GetBlockedExtensionsResponse {
 export interface UnblockExtensionRequest {
   id: string;
 }
+
+export interface GetFileListResponse {
+  id: string;
+  name: string;
+  url: string
+}

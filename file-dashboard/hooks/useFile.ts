@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { BlockExtension, getBlockedExtensions, UnblockExtension } from "@/api/file";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { BlockExtension, getBlockedExtensions, getFileList, UnblockExtension } from "@/api/file";
 import { queryKey } from "@/constants";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
@@ -46,5 +46,17 @@ export function useUnblockExtension() {
         "처리 중 오류가 발생했습니다, 잠시 후 다시 시도해 주세요."
       );
     }
+  });
+}
+
+export function useGetFileList() {
+  return useInfiniteQuery({
+    queryFn: ({ pageParam }) => getFileList(pageParam),
+    queryKey: [queryKey.GET_FILE_LIST],
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      const lastPost = lastPage[lastPage.length - 1];
+      return lastPost ? allPages.length + 1 : undefined;
+    },
   });
 }

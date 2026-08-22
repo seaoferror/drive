@@ -46,7 +46,7 @@ flowchart TB
         FileSvc["File Service Server(k8s deployment)"]
         Alloy(["Grafana Alloy"])
   end
-    Client(["Client / Browser"]) -- Loads UI --> Frontend
+    Client(["Client / Browser"]) <-- Loads UI --> Frontend
     Client -- API Requests --> Edge
     Client <-- File downloads --> CloudFront
     Edge <== Secure Tunnel ==> Cloudflared

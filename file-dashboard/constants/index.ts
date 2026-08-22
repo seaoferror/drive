@@ -1,4 +1,5 @@
 export const queryKey = {
   GET_BLOCKED_EXTENSIONS: "getBlockedExtensions",
-  GET_MY_ID: "getMyId"
+  GET_MY_ID: "getMyId",
+  GET_FILE_LIST: "getFileList"
 }
