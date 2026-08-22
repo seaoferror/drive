@@ -9,6 +9,11 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
+@Table(
+    indexes = {
+        @Index(name = "idx_blocked_extension_team_deleted", columnList = "team_id, deleted_at")
+    }
+)
 @Builder
 @Getter
 @Setter
