@@ -66,14 +66,13 @@ public class FileService {
     //TODO: caching the blocked mimetypes and custom extensions in redis/valkey
     List<BlockedExtensionNameProjection> extensions = blockedExtensionRepository.findByTeamIdAndDeletedAtIsNull(teamId, BlockedExtensionNameProjection.class);
     List<String> blockedMimetypes = new ArrayList<>();
-    List<String> blockedCustomExtensions = new ArrayList<>();
+    List<String> blockedExtensions = new ArrayList<>();
     for (var extension : extensions) {
+      blockedExtensions.add(extension.getName());
       String mimetype = tika.detect("1." + extension.getName());
-      if (mimetype.equals("application/octet-stream")) {
-        blockedCustomExtensions.add(extension.getName());
-        continue;
+      if (!mimetype.equals("application/octet-stream")) {
+        blockedMimetypes.add(mimetype);
       }
-      blockedMimetypes.add(mimetype);
     }
     String uploadedFileMimetype;
     String originalFilename = file.getOriginalFilename();
@@ -94,7 +93,7 @@ public class FileService {
     metadataRepository.save(metadata);
     try (var streamForTika = file.getInputStream()) {
       uploadedFileMimetype = tika.detect(streamForTika);
-      if (blockedMimetypes.contains(uploadedFileMimetype) || blockedCustomExtensions.contains(lowerCasedUploadedFileExtension)) {
+      if (blockedMimetypes.contains(uploadedFileMimetype) || blockedExtensions.contains(lowerCasedUploadedFileExtension)) {
         throw new RuntimeException();
       }
     } catch (Exception e) {

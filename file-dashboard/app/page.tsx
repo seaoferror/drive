@@ -1,26 +1,26 @@
 "use client";
 
 import { useEffect } from "react";
-import { useGetMyProfile } from "@/hooks/useInfo";
 import { useRouter } from "next/navigation";
+import { refreshAccessToken } from "@/api/auth";
 
 export default function RootPage() {
-  const { data, isLoading, isError } = useGetMyProfile();
   const router = useRouter();
   useEffect(() => {
-    if (isLoading) {
+    const wrapper = async () => {
+      try {
+        const { accessToken } = await refreshAccessToken();
+        if (accessToken) {
+          router.replace("/policy")
+          return;
+        }
+      } catch {
+        router.replace("/login");
+      }
       return;
-    }
-    if (!data || isError) {
-      router.replace("/login");
-      return;
-    }
-    if (data.role == "admin") {
-      router.replace("/policy");
-      return;
-    }
-    router.replace("/upload");
-  }, [data, isLoading, isError]);
+    };
+    wrapper();
+  }, []);
 
   return (
     <div></div>

@@ -4,12 +4,13 @@ import { refreshAccessToken } from "@/api/auth";
 
 export const axiosInstance = create({
   adapter: "fetch",
-  baseURL: `https://backend.mikekim1032.shop`,
+  baseURL: `/api`,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
 });
+
 
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getStoredAccessToken();

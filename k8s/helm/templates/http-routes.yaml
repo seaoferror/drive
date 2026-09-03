@@ -37,8 +37,7 @@ spec:
     name: {{ $name }}-route
   cors:
     allowOrigins:
-      - "http://localhost:3000"
-      - "https://app.mikekim1032.shop"
+      - "https://*.mikekim1032.shop"
     allowMethods:
       - GET
       - POST
